@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modal Verbs Quiz v2.0</title>
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-surface: #283548;
+      --bg-input: #0f172a;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent-badge: rgba(59, 130, 246, 0.18);
+      --accent-badge-text: #60a5fa;
+      --cat-badge-bg: rgba(168, 85, 247, 0.18);
+      --cat-badge-text: #c084fc;
+      --success-bg: rgba(16, 185, 129, 0.14);
+      --success-border: #10b981;
+      --success-text: #a7f3d0;
+      --error-bg: rgba(239, 68, 68, 0.14);
+      --error-border: #ef4444;
+      --error-text: #fecaca;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    body.light-mode {
+      --bg-body: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-surface: #f8fafc;
+      --bg-input: #ffffff;
+      --border-color: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent-badge: #dbeafe;
+      --accent-badge-text: #1d4ed8;
+      --cat-badge-bg: #f3e8ff;
+      --cat-badge-text: #7e22ce;
+      --success-bg: #ecfdf5;
+      --success-border: #10b981;
+      --success-text: #065f46;
+      --error-bg: #fef2f2;
+      --error-border: #ef4444;
+      --error-text: #991b1b;
+      --shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.25s, color 0.25s;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .setup-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .setup-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 24px;
+      width: 100%;
+      max-width: 540px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .theme-quick-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-circle-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 1.65rem;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .version-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--accent-badge);
+      color: var(--accent-badge-text);
+      padding: 2px 8px;
+      border-radius: 12px;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .mode-tab {
+      padding: 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .mode-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.98rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-add {
+      padding: 0 18px;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .player-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .player-chip {
+      background: var(--accent-badge);
+      color: var(--accent-badge-text);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .player-chip button {
+      background: none;
+      border: none;
+      color: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .modal-filter-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .modal-chip-btn {
+      padding: 8px 13px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .modal-chip-btn.selected {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .filter-count-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+      text-align: right;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 12px;
+      background-color: var(--primary);
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .header-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--primary);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-pill {
+      background: var(--accent-badge);
+      color: var(--accent-badge-text);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .gear-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scoreboard-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .score-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-card.active-turn {
+      border-color: var(--primary);
+      background: var(--accent-badge);
+      font-weight: 700;
+    }
+
+    .remove-player-mini {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding-left: 4px;
+    }
+
+    .settings-drawer {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .drawer-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: none;
+      background: #dc2626;
+      color: #fff;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .quiz-container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .question-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .q-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .q-number {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--primary);
+    }
+
+    .category-tag {
+      background: var(--cat-badge-bg);
+      color: var(--cat-badge-text);
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .context-box {
+      background: var(--bg-surface);
+      border-left: 4px solid var(--primary);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+
+    .question-sentence {
+      font-size: 1.12rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-btn {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 0.98rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-btn.correct {
+      background-color: #059669;
+      border-color: #10b981;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .option-btn.wrong {
+      background-color: #dc2626;
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    .typing-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-check {
+      padding: 0 18px;
+      border-radius: 10px;
+      border: none;
+      background-color: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-check:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .feedback-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .feedback-box.correct {
+      background-color: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .feedback-box.wrong {
+      background-color: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    .feedback-title {
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .feedback-detail-list {
+      margin-top: 6px;
+      padding-left: 18px;
+    }
+
+    .feedback-detail-list li {
+      margin-bottom: 4px;
+    }
+
+    .summary-footer {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 22px;
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="setupScreen" class="setup-wrapper">
+    <div class="setup-card">
+      <button type="button" id="quickThemeBtn" class="theme-quick-btn" title="Alternar Tema">🌓</button>
+      <h1>Modal Verbs Quiz <span class="version-badge">v2.0</span></h1>
+      <p class="subtitle">Configure os jogadores e escolha quais verbos modais deseja praticar.</p>
+
+      <span class="section-label">1. Modo de Jogo</span>
+      <div class="mode-tabs">
+        <button type="button" id="tabSolo" class="mode-tab active">Individual</button>
+        <button type="button" id="tabGroup" class="mode-tab">Em Grupo</button>
+      </div>
+
+      <div id="soloInputBox">
+        <input type="text" id="soloNameInput" placeholder="Seu nome de jogador..." />
+      </div>
+
+      <div id="groupInputBox" class="hidden">
+        <div class="input-row">
+          <input type="text" id="groupNameInput" placeholder="Nome do participante..." />
+          <button type="button" id="addPlayerBtn" class="btn-add">+ Adicionar</button>
+        </div>
+        <div id="playerChips" class="player-chips"></div>
+      </div>
+
+      <span class="section-label">2. Escolha os Verbos Modais</span>
+      <div id="modalFilterGrid" class="modal-filter-grid"></div>
+      <div id="filterCountInfo" class="filter-count-info">40 exercícios selecionados</div>
+
+      <button type="button" id="startQuizBtn" class="btn-primary">Iniciar Exercícios</button>
+    </div>
+  </div>
+
+  <div id="quizScreen" class="hidden">
+    <header class="sticky-header">
+      <div class="header-inner">
+        <div class="header-top">
+          <span class="header-title">Modal Verbs Quiz <span class="version-badge">v2.0</span></span>
+          <div class="header-controls">
+            <span id="progressCounter" class="progress-pill">0 / 40 respondidas</span>
+            <button type="button" id="gearBtn" class="gear-btn" title="Configurações">⚙️</button>
+          </div>
+        </div>
+
+        <div id="scoreboardBar" class="scoreboard-bar"></div>
+
+        <div id="settingsDrawer" class="settings-drawer hidden">
+          <div class="setting-row">
+            <span><strong>Aparência (Tema)</strong></span>
+            <button type="button" id="drawerThemeBtn" class="theme-circle-btn" title="Alternar Tema">🌓</button>
+          </div>
+
+          <div class="setting-row">
+            <span><strong>Mostrar contexto e categoria</strong></span>
+            <input type="checkbox" id="toggleContextChk" checked style="width: 18px; height: 18px; cursor: pointer;" />
+          </div>
+
+          <div class="drawer-actions">
+            <button type="button" id="shuffleBtn" class="btn-secondary">🔀 Embaralhar Lista</button>
+            <button type="button" id="newQuizBtn" class="btn-danger">🔄 Novo Quiz</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="questionsList" class="quiz-container"></main>
+
+    <div class="quiz-container">
+      <div class="summary-footer">
+        <h3 style="margin-bottom: 8px;">Fim da lista de exercícios</h3>
+        <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 14px;">
+          Você pode revisar suas respostas acima ou iniciar uma nova rodada com outros modais.
+        </p>
+        <button type="button" id="footerRestartBtn" class="btn-primary" style="margin-top: 0; max-width: 280px;">Novo Quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modalDefinitions = {
+      "can": {
+        name: "Can",
+        role: "Habilidade no presente, permissão informal ou possibilidade geral",
+        structure: "Sujeito + can + verbo principal no infinitivo sem 'to'",
+        contrast: "Diferente de 'could' (passado/mais polido) e 'may' (mais formal)."
+      },
+      "can't": {
+        name: "Can't / Cannot",
+        role: "Incapacidade no presente ou impossibilidade lógica (dedução negativa)",
+        structure: "Sujeito + can't + verbo principal no infinitivo sem 'to'",
+        contrast: "Não confunda com 'mustn't': 'can't' indica algo impossível, enquanto 'mustn't' indica proibição."
+      },
+      "cannot": {
+        name: "Cannot (Can't)",
+        role: "Incapacidade no presente ou impossibilidade lógica",
+        structure: "Sujeito + cannot + verbo principal sem 'to'",
+        contrast: "Forma completa e mais enfática de 'can't'."
+      },
+      "could": {
+        name: "Could",
+        role: "Habilidade no passado, pedido educado ou possibilidade remota",
+        structure: "Sujeito + could + verbo principal sem 'to'",
+        contrast: "No passado equivale a 'can'; em pedidos, soa mais educado que 'can'."
+      },
+      "couldn't": {
+        name: "Couldn't",
+        role: "Falta de habilidade ou impossibilidade no passado",
+        structure: "Sujeito + couldn't + verbo principal sem 'to'",
+        contrast: "Forma passada de 'can't'."
+      },
+      "may": {
+        name: "May",
+        role: "Permissão formal ou possibilidade moderada no presente/futuro",
+        structure: "May + sujeito + verbo (perguntas) / Sujeito + may + verbo",
+        contrast: "Mais formal que 'can' para pedir permissão e mais provável que 'might'."
+      },
+      "might": {
+        name: "Might",
+        role: "Possibilidade incerta ou remota",
+        structure: "Sujeito + might + verbo principal sem 'to'",
+        contrast: "Indica um grau de certeza menor do que 'may' ou 'must'."
+      },
+      "must": {
+        name: "Must",
+        role: "Obrigação forte/interna, regra rígida ou dedução lógica quase certa",
+        structure: "Sujeito + must + verbo principal sem 'to'",
+        contrast: "Para dedução afirmativa usa-se 'must', mas para dedução negativa usa-se 'can't'."
+      },
+      "mustn't": {
+        name: "Mustn't",
+        role: "Proibição estrita (algo que não deve ser feito de forma alguma)",
+        structure: "Sujeito + mustn't + verbo principal sem 'to'",
+        contrast: "Totalmente diferente de 'don't have to': 'mustn't' proíbe, enquanto 'don't have to' apenas dispensa a obrigação."
+      },
+      "have to": {
+        name: "Have to",
+        role: "Obrigação externa (leis, normas institucionais ou necessidade imposta)",
+        structure: "Sujeito + have/has to + verbo principal",
+        contrast: "Semelhante a 'must', mas foca em regras vindas de fora (leis, escola, trabalho)."
+      },
+      "don't have to": {
+        name: "Don't have to",
+        role: "Ausência de obrigação ou necessidade (é opcional)",
+        structure: "Sujeito + don't/doesn't have to + verbo principal",
+        contrast: "Não significa proibição! Significa que você não precisa fazer, mas pode se quiser."
+      },
+      "should": {
+        name: "Should",
+        role: "Conselho, recomendação ou expectativa lógica",
+        structure: "Sujeito + should + verbo principal sem 'to'",
+        contrast: "Mais suave que 'must' ou 'have to', pois funciona como orientação, não imposição."
+      },
+      "shouldn't": {
+        name: "Shouldn't",
+        role: "Conselho negativo (algo que não é recomendado fazer)",
+        structure: "Sujeito + shouldn't + verbo principal sem 'to'",
+        contrast: "Indica que algo é má ideia, sem ter o peso de uma proibição legal como 'mustn't'."
+      },
+      "would": {
+        name: "Would",
+        role: "Pedidos muito educados, oferecimentos ou situações hipotéticas",
+        structure: "Would + sujeito + verbo / Sujeito + would + verbo",
+        contrast: "Muito usado em expressões de cortesia ('Would you like...', 'Would you mind...') e condicionais."
+      }
+    };
+
+    const allQuestions = [
+      { id: 1, group: "can", category: "Habilidade no Presente", context: "Você está apresentando uma colega poliglota que domina quatro idiomas hoje em dia.", q: "She ___ speak four languages fluently.", type: "choice", options: ["can", "must", "should", "might"], answer: ["can"], reason: "O contexto descreve uma capacidade atual e comprovada da pessoa no presente." },
+      { id: 2, group: "should", category: "Conselho / Recomendação", context: "Um amigo está tossindo muito forte há dias e você quer orientá-lo a procurar ajuda médica.", q: "You have a terrible cough. You ___ see a doctor.", type: "choice", options: ["should", "can't", "might", "may"], answer: ["should"], reason: "Estamos dando uma recomendação útil para a saúde de alguém, sem ser uma ordem legal." },
+      { id: 3, group: "must", category: "Proibição Estrita", context: "Placa de aviso na ala de internação de um hospital onde o cigarro é terminantemente proibido.", q: "Visitors ___ smoke inside the hospital rooms.", type: "choice", options: ["mustn't", "don't have to", "couldn't", "might not"], answer: ["mustn't"], reason: "Fumar em quartos de hospital é uma proibição rígida de segurança e saúde." },
+      { id: 4, group: "may", category: "Permissão Formal", context: "Um aluno precisa sair mais cedo da aula e faz um pedido respeitoso ao professor universitário.", q: "___ I leave the classroom early today, professor?", type: "choice", options: ["May", "Must", "Should", "Would"], answer: ["may"], reason: "Ao falar com uma autoridade (professor) em ambiente formal, 'May I...' é a escolha mais adequada." },
+      { id: 5, group: "might", category: "Possibilidade Incerta", context: "O céu tem algumas nuvens, mas a previsão do tempo não dá certeza de chuva para mais tarde.", q: "Take an umbrella. It ___ rain later.", type: "type", answer: ["might", "may", "could"], reason: "Como não há certeza absoluta de que vai chover, usamos um modal de possibilidade futura." },
+      { id: 6, group: "must", category: "Dedução Lógica", context: "Você chega na frente da casa de um amigo, vê as luzes acesas e o carro dele estacionado na garagem.", q: "The lights are on and his car is outside. He ___ be at home.", type: "choice", options: ["must", "can", "shouldn't", "might"], answer: ["must"], reason: "As evidências visíveis levam a uma conclusão lógica quase certa de que ele está em casa." },
+      { id: 7, group: "have to", category: "Ausência de Obrigação", context: "Você percebe que amanhã é domingo e não há trabalho nem aula agendada pela manhã.", q: "Tomorrow is Sunday, so I ___ wake up early.", type: "choice", options: ["don't have to", "mustn't", "can't", "shouldn't"], answer: ["don't have to"], reason: "Não existe necessidade ou obrigação de acordar cedo no domingo, mas você pode se quiser." },
+      { id: 8, group: "could", category: "Habilidade no Passado", context: "Alguém está relembrando a infância e contando o que já conseguia fazer aos cinco anos de idade.", q: "When I was five, I ___ swim very well.", type: "choice", options: ["could", "can", "may", "must"], answer: ["could"], reason: "A marca temporal 'When I was five' exige o modal de habilidade no passado." },
+      { id: 9, group: "have to", category: "Obrigação Externa (Lei)", context: "Regra do código de trânsito que obriga todos os motoristas a pararem diante do sinal vermelho.", q: "Drivers ___ stop when the traffic light is red.", type: "choice", options: ["have to", "might", "could", "would"], answer: ["have to"], reason: "Trata-se de uma exigência legal imposta pelas leis de trânsito a todos os condutores." },
+      { id: 10, group: "can", category: "Impossibilidade Lógica", context: "Alguém diz que viu John na porta, mas você sabe com certeza que ele embarcou para Londres hoje cedo.", q: "That ___ be John at the door; he flew to London this morning.", type: "type", answer: ["can't", "cannot"], reason: "Quando uma evidência torna uma situação logicamente impossível, usamos a dedução negativa." },
+
+      { id: 11, group: "would", category: "Oferecimento Educado", context: "Um anfitrião recebe uma visita em casa e oferece uma xícara de café com gentileza.", q: "___ you like a cup of coffee?", type: "choice", options: ["Would", "Must", "Should", "Can"], answer: ["would"], reason: "A estrutura 'Would you like...' é a forma padrão e polida para oferecer algo em inglês." },
+      { id: 12, group: "should", category: "Conselho Negativo", context: "Um colega gasta todo o salário assim que recebe e você o aconselha a evitar esse hábito.", q: "You ___ spend all your money on video games.", type: "choice", options: ["shouldn't", "must", "can", "may"], answer: ["shouldn't"], reason: "É um conselho para evitar uma atitude prejudicial, sem ser uma proibição oficial." },
+      { id: 13, group: "could", category: "Pedido Educado", context: "Durante um jantar, você pede com educação para alguém passar o saleiro que está longe.", q: "___ you pass me the salt, please?", type: "choice", options: ["Could", "Must", "May", "Should"], answer: ["could"], reason: "'Could you...' suaviza o pedido e demonstra cortesia ao solicitar um favor." },
+      { id: 14, group: "have to", category: "Obrigação Externa (Regra)", context: "Norma interna de uma escola que exige o uso diário de uniforme por todos os estudantes.", q: "At my school, students ___ wear a uniform every day.", type: "choice", options: ["have to", "might", "could", "may"], answer: ["have to"], reason: "É uma obrigação estabelecida pela instituição de ensino, não uma escolha pessoal." },
+      { id: 15, group: "can", category: "Incapacidade no Presente", context: "Um amigo pede ajuda agora, mas você está ocupado com outra tarefa e não tem condição de ajudar.", q: "I'm sorry, I ___ help you right now because I'm busy.", type: "type", answer: ["can't", "cannot"], reason: "Indica falta de condição ou impossibilidade de realizar a ação no momento atual." },
+      { id: 16, group: "might", category: "Possibilidade Remota", context: "Você não sabe exatamente onde Sarah foi estudar, apenas suspeita que ela esteja na biblioteca.", q: "I'm not sure where Sarah is. She ___ be in the library.", type: "choice", options: ["might", "must", "can't", "have to"], answer: ["might"], reason: "A expressão 'I'm not sure' reforça que é apenas uma suposição incerta." },
+      { id: 17, group: "must", category: "Proibição Estrita", context: "Você está contando uma informação confidencial e exige que a outra pessoa não espalhe.", q: "This is a secret. You ___ tell anyone!", type: "choice", options: ["mustn't", "don't have to", "might not", "couldn't"], answer: ["mustn't"], reason: "Reforça uma proibição forte de revelar o segredo a outras pessoas." },
+      { id: 18, group: "could", category: "Incapacidade no Passado", context: "Em uma festa ontem à noite, o volume do som estava tão alto que ninguém conseguia conversar.", q: "The music was so loud that we ___ hear each other.", type: "choice", options: ["couldn't", "can't", "mustn't", "shouldn't"], answer: ["couldn't"], reason: "O verbo 'was' situa a cena no passado, exigindo a forma negativa passada de 'can'." },
+      { id: 19, group: "should", category: "Conselho / Orientação", context: "Um estudante quer ser aprovado em uma prova difícil e pede uma dica de preparação.", q: "If you want to pass the exam, you ___ study harder.", type: "choice", options: ["should", "might", "could", "may"], answer: ["should"], reason: "Apresenta a melhor recomendação para que a pessoa alcance o objetivo desejado." },
+      { id: 20, group: "must", category: "Obrigação Interna / Urgente", context: "Você lembra que hoje é aniversário da sua mãe e sente um dever pessoal forte de ligar para ela.", q: "I really ___ call my mother today; it's her birthday.", type: "type", answer: ["must", "have to"], reason: "Expressa uma necessidade urgente e um compromisso pessoal importante." },
+
+      { id: 21, group: "have to", category: "Ausência de Obrigação", context: "Aviso na bilheteria de um museu informando que aos domingos a entrada é gratuita.", q: "The museum is free on Sundays. You ___ pay to enter.", type: "choice", options: ["don't have to", "mustn't", "can't", "shouldn't"], answer: ["don't have to"], reason: "Como o acesso é gratuito, não há exigência de pagamento para entrar." },
+      { id: 22, group: "can", category: "Permissão Informal", context: "Você está sentado ao lado de um amigo próximo e pede a caneta dele emprestada rapidamente.", q: "___ I borrow your pen for a second?", type: "choice", options: ["Can", "Must", "Should", "Would"], answer: ["can"], reason: "Em situações cotidianas e informais entre amigos, 'Can I...' é a forma mais natural." },
+      { id: 23, group: "must", category: "Dedução Lógica", context: "Seu amigo acabou de dirigir por 12 horas seguidas sem parar e você deduz que ele está exausto.", q: "You drove for 12 hours! You ___ be exhausted.", type: "choice", options: ["must", "can't", "shouldn't", "might not"], answer: ["must"], reason: "Após 12 horas dirigindo, a conclusão lógica evidente é que a pessoa está muito cansada." },
+      { id: 24, group: "can", category: "Possibilidade Geral", context: "Descrição climática sobre como os invernos costumam ser rigorosos naquela região.", q: "Winters in this region ___ be very cold.", type: "choice", options: ["can", "mustn't", "should", "have to"], answer: ["can"], reason: "'Can' também expressa características ou eventos que costumam acontecer de forma geral." },
+      { id: 25, group: "should", category: "Conselho de Bem-estar", context: "Você percebe que seu colega está bocejando e com aparência cansada durante o dia.", q: "You look tired. You ___ go to bed earlier.", type: "type", answer: ["should"], reason: "Dá uma sugestão saudável e amigável para resolver o cansaço." },
+      { id: 26, group: "must", category: "Proibição Estrita", context: "Você aponta para uma placa de 'Proibido Estacionar' em frente a uma garagem.", q: "Look at the sign! You ___ park your car here.", type: "choice", options: ["mustn't", "don't have to", "might", "could"], answer: ["mustn't"], reason: "A sinalização indica uma proibição expressa de estacionar no local." },
+      { id: 27, group: "would", category: "Situação Hipotética", context: "Alguém imagina o que faria caso ganhasse na loteria algum dia.", q: "If I won the lottery, I ___ travel around the world.", type: "choice", options: ["would", "must", "can", "may"], answer: ["would"], reason: "Na segunda condicional (situações imaginárias com 'If + passado'), usa-se 'would'." },
+      { id: 28, group: "may", category: "Possibilidade Condicionada", context: "Vocês planejam ir à praia amanhã, mas a viagem depende de o tempo melhorar.", q: "We ___ go to the beach tomorrow, depending on the weather.", type: "choice", options: ["may", "must", "can't", "have to"], answer: ["may"], reason: "Indica uma possibilidade real para o futuro, mas ainda sujeita a condições." },
+      { id: 29, group: "could", category: "Incapacidade no Passado", context: "Durante uma corrida ontem, o atleta ficou exausto e não conseguiu cruzar a linha de chegada.", q: "He was tired, so he ___ finish the race.", type: "choice", options: ["couldn't", "can't", "mustn't", "may not"], answer: ["couldn't"], reason: "A ação ocorreu no passado ('was tired'), pedindo o negativo de 'could'." },
+      { id: 30, group: "may", category: "Permissão Formal / Norma", context: "Anúncio oficial no portão de embarque de um aeroporto sobre a entrada dos passageiros.", q: "Passengers ___ board the plane only with a valid ticket.", type: "type", answer: ["may", "can", "must"], reason: "Avisos formais de embarque concedem permissão condicionada ou estabelecem regra." },
+
+      { id: 31, group: "can", category: "Incapacidade Natural", context: "Curiosidade biológica explicando que pinguins são aves, mas não têm capacidade de voar.", q: "Penguins are birds, but they ___ fly.", type: "choice", options: ["can't", "mustn't", "shouldn't", "might not"], answer: ["can't"], reason: "Expressa uma limitação física permanente própria da espécie." },
+      { id: 32, group: "have to", category: "Obrigação Externa (Burocracia)", context: "Exigência legal das autoridades de imigração para qualquer pessoa viajar ao exterior.", q: "You ___ have a passport to travel abroad.", type: "choice", options: ["have to", "might", "could", "shouldn't"], answer: ["have to"], reason: "É uma regra obrigatória imposta por leis internacionais de fronteira." },
+      { id: 33, group: "should", category: "Conselho Negativo", context: "Orientação alimentar para alguém que costuma comer rápido demais e sente desconforto.", q: "You ___ eat so fast; it's bad for your stomach.", type: "choice", options: ["shouldn't", "must", "can", "may"], answer: ["shouldn't"], reason: "Aconselha a pessoa a evitar um hábito prejudicial à digestão." },
+      { id: 34, group: "can", category: "Impossibilidade Lógica", context: "Alguém acha que viu seu vizinho dirigindo na avenida, mas você sabe que ele nem possui carro.", q: "He doesn't even have a car, so he ___ be driving right now.", type: "choice", options: ["can't", "must", "should", "may"], answer: ["can't"], reason: "Se ele não tem carro, é logicamente impossível que esteja dirigindo." },
+      { id: 35, group: "would", category: "Pedido Muito Educado", context: "Em um escritório ou transporte público, você pede com extrema gentileza para fecharem a janela.", q: "___ you mind closing the window, please?", type: "type", answer: ["would"], reason: "A estrutura 'Would you mind + -ing' é uma das formas mais polidas de fazer um pedido." },
+      { id: 36, group: "can", category: "Habilidade Artística", context: "Você está contando sobre os talentos musicais do seu irmão, que toca violão e piano.", q: "My brother ___ play the guitar and the piano.", type: "choice", options: ["can", "must", "should", "might"], answer: ["can"], reason: "Habilidades aprendidas e praticadas no presente são expressas com 'can'." },
+      { id: 37, group: "have to", category: "Ausência de Obrigação", context: "Você já lavou toda a louça do jantar, então avisa seu colega que ele não precisa fazer isso.", q: "I already washed the dishes, so you ___ do it.", type: "choice", options: ["don't have to", "mustn't", "can't", "shouldn't"], answer: ["don't have to"], reason: "Como a tarefa já está concluída, desaparece a necessidade de realizá-la." },
+      { id: 38, group: "might", category: "Possibilidade de Atraso", context: "O trânsito está congestionado a caminho do trabalho e existe o risco de vocês chegarem atrasados.", q: "Traffic is heavy. We ___ be late for the meeting.", type: "choice", options: ["might", "mustn't", "can't", "have"], answer: ["might"], reason: "Expressa uma possibilidade futura indesejada decorrente do trânsito intenso." },
+      { id: 39, group: "should", category: "Expectativa Lógica", context: "Uma aluna se dedicou muito aos estudos e você espera que ela passe na prova sem dificuldades.", q: "She studied a lot, so she ___ pass the test easily.", type: "choice", options: ["should", "can't", "mustn't", "couldn't"], answer: ["should"], reason: "'Should' também indica algo que esperamos que aconteça como resultado lógico do esforço." },
+      { id: 40, group: "must", category: "Regra de Segurança", context: "Norma obrigatória dentro de um laboratório de química para proteger os olhos dos estudantes.", q: "Students ___ wear safety glasses during the experiment.", type: "type", answer: ["must", "have to"], reason: "Normas rígidas de segurança em laboratório exigem 'must' ou 'have to'." }
+    ];
+
+    const modalGroups = [
+      { id: "all", label: "Todas" },
+      { id: "can", label: "Can / Can't" },
+      { id: "could", label: "Could / Couldn't" },
+      { id: "may", label: "May" },
+      { id: "might", label: "Might" },
+      { id: "must", label: "Must / Mustn't" },
+      { id: "have to", label: "Have to / Don't have to" },
+      { id: "should", label: "Should / Shouldn't" },
+      { id: "would", label: "Would" }
+    ];
+
+    let gameMode = "solo";
+    let players = [];
+    let currentTurnIndex = 0;
+    let selectedModalGroups = new Set(["all"]);
+    let activeQuestions = [];
+    let answeredCount = 0;
+    let showContext = true;
+
+    const setupScreen = document.getElementById("setupScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const tabSolo = document.getElementById("tabSolo");
+    const tabGroup = document.getElementById("tabGroup");
+    const soloInputBox = document.getElementById("soloInputBox");
+    const groupInputBox = document.getElementById("groupInputBox");
+    const soloNameInput = document.getElementById("soloNameInput");
+    const groupNameInput = document.getElementById("groupNameInput");
+    const addPlayerBtn = document.getElementById("addPlayerBtn");
+    const playerChips = document.getElementById("playerChips");
+    const modalFilterGrid = document.getElementById("modalFilterGrid");
+    const filterCountInfo = document.getElementById("filterCountInfo");
+    const startQuizBtn = document.getElementById("startQuizBtn");
+
+    const progressCounter = document.getElementById("progressCounter");
+    const scoreboardBar = document.getElementById("scoreboardBar");
+    const gearBtn = document.getElementById("gearBtn");
+    const settingsDrawer = document.getElementById("settingsDrawer");
+    const toggleContextChk = document.getElementById("toggleContextChk");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const newQuizBtn = document.getElementById("newQuizBtn");
+    const footerRestartBtn = document.getElementById("footerRestartBtn");
+    const questionsList = document.getElementById("questionsList");
+
+    const quickThemeBtn = document.getElementById("quickThemeBtn");
+    const drawerThemeBtn = document.getElementById("drawerThemeBtn");
+
+    function toggleTheme() {
+      document.body.classList.toggle("light-mode");
+    }
+
+    quickThemeBtn.addEventListener("click", toggleTheme);
+    drawerThemeBtn.addEventListener("click", toggleTheme);
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function prepareRandomizedQuestions(list) {
+      const cloned = list.map(q => ({
+        ...q,
+        options: q.options ? shuffleArray([...q.options]) : undefined
+      }));
+      return shuffleArray(cloned);
+    }
+
+    tabSolo.addEventListener("click", () => {
+      gameMode = "solo";
+      tabSolo.classList.add("active");
+      tabGroup.classList.remove("active");
+      soloInputBox.classList.remove("hidden");
+      groupInputBox.classList.add("hidden");
+    });
+
+    tabGroup.addEventListener("click", () => {
+      gameMode = "group";
+      tabGroup.classList.add("active");
+      tabSolo.classList.remove("active");
+      groupInputBox.classList.remove("hidden");
+      soloInputBox.classList.add("hidden");
+    });
+
+    function addGroupPlayer() {
+      const name = groupNameInput.value.trim();
+      if (!name) return;
+      players.push({ name: name, score: 0 });
+      groupNameInput.value = "";
+      renderSetupChips();
+    }
+
+    function renderSetupChips() {
+      playerChips.innerHTML = "";
+      players.forEach((p, idx) => {
+        const chip = document.createElement("div");
+        chip.className = "player-chip";
+        chip.innerHTML = `<span>${p.name}</span><button type="button" aria-label="Remover">×</button>`;
+        chip.querySelector("button").onclick = () => {
+          players.splice(idx, 1);
+          renderSetupChips();
+        };
+        playerChips.appendChild(chip);
+      });
+    }
+
+    addPlayerBtn.addEventListener("click", addGroupPlayer);
+    groupNameInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") addGroupPlayer();
+    });
+
+    function renderModalFilters() {
+      modalFilterGrid.innerHTML = "";
+      modalGroups.forEach(grp => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "modal-chip-btn" + (selectedModalGroups.has(grp.id) ? " selected" : "");
+        btn.textContent = grp.label;
+        btn.onclick = () => toggleModalFilter(grp.id);
+        modalFilterGrid.appendChild(btn);
+      });
+      updateFilterCount();
+    }
+
+    function toggleModalFilter(id) {
+      if (id === "all") {
+        selectedModalGroups.clear();
+        selectedModalGroups.add("all");
+      } else {
+        selectedModalGroups.delete("all");
+        if (selectedModalGroups.has(id)) {
+          selectedModalGroups.delete(id);
+          if (selectedModalGroups.size === 0) {
+            selectedModalGroups.add("all");
+          }
+        } else {
+          selectedModalGroups.add(id);
+        }
+      }
+      renderModalFilters();
+    }
+
+    function getFilteredQuestions() {
+      if (selectedModalGroups.has("all")) {
+        return [...allQuestions];
+      }
+      return allQuestions.filter(q => selectedModalGroups.has(q.group));
+    }
+
+    function updateFilterCount() {
+      const count = getFilteredQuestions().length;
+      filterCountInfo.textContent = `${count} exercício${count !== 1 ? "s" : ""} selecionado${count !== 1 ? "s" : ""}`;
+    }
+
+    renderModalFilters();
+
+    startQuizBtn.addEventListener("click", () => {
+      if (gameMode === "solo") {
+        const soloName = soloNameInput.value.trim() || "Jogador";
+        players = [{ name: soloName, score: 0 }];
+      } else {
+        if (players.length === 0) {
+          const pendingName = groupNameInput.value.trim();
+          if (pendingName) {
+            players.push({ name: pendingName, score: 0 });
+            groupNameInput.value = "";
+          } else {
+            players = [{ name: "Jogador 1", score: 0 }, { name: "Jogador 2", score: 0 }];
+          }
+        } else {
+          players.forEach(p => p.score = 0);
+        }
+      }
+
+      currentTurnIndex = 0;
+      answeredCount = 0;
+      activeQuestions = prepareRandomizedQuestions(getFilteredQuestions());
+
+      setupScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+      settingsDrawer.classList.add("hidden");
+
+      renderScoreboard();
+      renderAllQuestions();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    function renderScoreboard() {
+      scoreboardBar.innerHTML = "";
+      players.forEach((p, idx) => {
+        const card = document.createElement("div");
+        const isTurn = players.length > 1 && idx === currentTurnIndex;
+        card.className = "score-card" + (isTurn ? " active-turn" : "");
+
+        const turnPrefix = isTurn ? "🎯 Vez: " : "";
+        card.innerHTML = `<span>${turnPrefix}<strong>${p.name}</strong>: ${p.score} pt${p.score !== 1 ? "s" : ""}</span>`;
+
+        if (players.length > 1) {
+          const rmBtn = document.createElement("button");
+          rmBtn.type = "button";
+          rmBtn.className = "remove-player-mini";
+          rmBtn.textContent = "×";
+          rmBtn.title = "Remover participante";
+          rmBtn.onclick = () => {
+            players.splice(idx, 1);
+            if (currentTurnIndex >= players.length) currentTurnIndex = 0;
+            renderScoreboard();
+          };
+          card.appendChild(rmBtn);
+        }
+
+        scoreboardBar.appendChild(card);
+      });
+    }
+
+    function updateProgress() {
+      progressCounter.textContent = `${answeredCount} / ${activeQuestions.length} respondidas`;
+    }
+
+    function renderAllQuestions() {
+      questionsList.innerHTML = "";
+
+      activeQuestions.forEach((item, index) => {
+        const card = document.createElement("article");
+        card.className = "question-card";
+        card.id = `q-card-${item.id}`;
+
+        const metaRow = document.createElement("div");
+        metaRow.className = "q-meta-row";
+        metaRow.innerHTML = `
+          <span class="q-number">Questão ${index + 1} de ${activeQuestions.length}</span>
+          <span class="category-tag meta-toggle ${showContext ? "" : "hidden"}">${item.category}</span>
+        `;
+        card.appendChild(metaRow);
+
+        const ctxBox = document.createElement("div");
+        ctxBox.className = `context-box meta-toggle ${showContext ? "" : "hidden"}`;
+        ctxBox.innerHTML = `<strong>Situação:</strong> ${item.context}`;
+        card.appendChild(ctxBox);
+
+        const sentence = document.createElement("div");
+        sentence.className = "question-sentence";
+        sentence.textContent = item.q;
+        card.appendChild(sentence);
+
+        const feedbackBox = document.createElement("div");
+        feedbackBox.className = "feedback-box hidden";
+
+        if (item.type === "choice") {
+          const grid = document.createElement("div");
+          grid.className = "options-grid";
+
+          item.options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "option-btn";
+            btn.textContent = opt;
+
+            btn.onclick = () => {
+              const allBtns = grid.querySelectorAll(".option-btn");
+              allBtns.forEach(b => b.disabled = true);
+
+              const isCorrect = item.answer.map(a => a.toLowerCase()).includes(opt.toLowerCase());
+              if (isCorrect) {
+                btn.classList.add("correct");
+                registerAnswer(true, opt, item, feedbackBox);
+              } else {
+                btn.classList.add("wrong");
+                allBtns.forEach(b => {
+                  if (item.answer.map(a => a.toLowerCase()).includes(b.textContent.toLowerCase())) {
+                    b.classList.add("correct");
+                  }
+                });
+                registerAnswer(false, opt, item, feedbackBox);
+              }
+            };
+
+            grid.appendChild(btn);
+          });
+
+          card.appendChild(grid);
+        } else {
+          const typingRow = document.createElement("div");
+          typingRow.className = "typing-row";
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "Digite o verbo modal...";
+          input.autocomplete = "off";
+
+          const checkBtn = document.createElement("button");
+          checkBtn.type = "button";
+          checkBtn.className = "btn-check";
+          checkBtn.textContent = "Verificar";
+
+          const submitTyping = () => {
+            const val = input.value.trim();
+            if (!val) return;
+            input.disabled = true;
+            checkBtn.disabled = true;
+
+            const isCorrect = item.answer.map(a => a.toLowerCase()).includes(val.toLowerCase());
+            registerAnswer(isCorrect, val, item, feedbackBox);
+          };
+
+          checkBtn.onclick = submitTyping;
+          input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") submitTyping();
+          });
+
+          typingRow.appendChild(input);
+          typingRow.appendChild(checkBtn);
+          card.appendChild(typingRow);
+        }
+
+        card.appendChild(feedbackBox);
+        questionsList.appendChild(card);
+      });
+    }
+
+    function registerAnswer(isCorrect, userAnswer, item, feedbackBox) {
+      answeredCount++;
+      updateProgress();
+
+      const activePlayer = players[currentTurnIndex];
+      if (isCorrect && activePlayer) {
+        activePlayer.score++;
+      }
+
+      if (players.length > 1) {
+        currentTurnIndex = (currentTurnIndex + 1) % players.length;
+      }
+      renderScoreboard();
+
+      const primaryCorrectKey = item.answer[0].toLowerCase();
+      const correctInfo = modalDefinitions[primaryCorrectKey] || {
+        name: item.answer[0],
+        role: item.category,
+        structure: "Sujeito + modal + verbo principal",
+        contrast: ""
+      };
+
+      const cleanUserKey = userAnswer.trim().toLowerCase();
+      const userModalInfo = modalDefinitions[cleanUserKey];
+
+      feedbackBox.classList.remove("hidden");
+
+      if (isCorrect) {
+        feedbackBox.classList.add("correct");
+        feedbackBox.innerHTML = `
+          <span class="feedback-title">✅ Resposta Correta! (${item.answer.join(" / ")})</span>
+          <ul class="feedback-detail-list">
+            <li><strong>Classificação da frase:</strong> ${item.category}.</li>
+            <li><strong>Por que está certo:</strong> ${item.reason}</li>
+            <li><strong>Função gramatical de "${correctInfo.name}":</strong> ${correctInfo.role}.</li>
+            <li><strong>Estrutura e uso:</strong> ${correctInfo.structure}. ${correctInfo.contrast}</li>
+          </ul>
+        `;
+      } else {
+        feedbackBox.classList.add("wrong");
+        let userErrorDetail = "";
+        if (userModalInfo) {
+          userErrorDetail = `<li><strong>Por que "${userAnswer}" não se encaixa:</strong> "${userModalInfo.name}" expressa <em>${userModalInfo.role.toLowerCase()}</em>, o que muda o sentido exigido por esta situação.</li>`;
+        } else {
+          userErrorDetail = `<li><strong>Sobre sua resposta ("${userAnswer}"):</strong> Esta palavra não corresponde a um verbo modal válido ou adequado para completar a estrutura desta frase.</li>`;
+        }
+
+        feedbackBox.innerHTML = `
+          <span class="feedback-title">❌ Resposta Incorreta — Gabarito: ${item.answer.join(" / ")}</span>
+          <ul class="feedback-detail-list">
+            <li><strong>Classificação da frase:</strong> ${item.category}.</li>
+            <li><strong>Explicação do gabarito:</strong> ${item.reason}</li>
+            ${userErrorDetail}
+            <li><strong>Regra de "${correctInfo.name}":</strong> ${correctInfo.role}. ${correctInfo.contrast}</li>
+          </ul>
+        `;
+      }
+    }
+
+    gearBtn.addEventListener("click", () => {
+      settingsDrawer.classList.toggle("hidden");
+    });
+
+    toggleContextChk.addEventListener("change", () => {
+      showContext = toggleContextChk.checked;
+      document.querySelectorAll(".meta-toggle").forEach(el => {
+        if (showContext) el.classList.remove("hidden");
+        else el.classList.add("hidden");
+      });
+    });
+
+    shuffleBtn.addEventListener("click", () => {
+      activeQuestions = prepareRandomizedQuestions(activeQuestions);
+      answeredCount = 0;
+      players.forEach(p => p.score = 0);
+      currentTurnIndex = 0;
+      renderScoreboard();
+      renderAllQuestions();
+      updateProgress();
+      settingsDrawer.classList.add("hidden");
+    });
+
+    function resetToHome() {
+      quizScreen.classList.add("hidden");
+      setupScreen.classList.remove("hidden");
+      settingsDrawer.classList.add("hidden");
+      if (gameMode === "group") {
+        renderSetupChips();
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    newQuizBtn.addEventListener("click", resetToHome);
+    footerRestartBtn.addEventListener("click", resetToHome);
+  </script>
+</body>
+</html>

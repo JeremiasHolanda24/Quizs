@@ -1,0 +1,180 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened global primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidQuizRoom(data) {
+      return data.hostId is string && data.hostId.size() >= 1 && data.hostId.size() <= 128 &&
+             data.hostName is string && data.hostName.size() >= 1 && data.hostName.size() <= 40 &&
+             data.status in ['LOBBY', 'QUESTION', 'REVEAL', 'FINISHED'] &&
+             data.difficulty in ['EASY', 'NORMAL'] &&
+             data.questionIds is list && data.questionIds.size() >= 1 && data.questionIds.size() <= 40 &&
+             data.questionIds[0] is int &&
+             data.currentQuestionIndex is int &&
+             data.currentQuestionIndex >= 0 &&
+             data.currentQuestionIndex < data.questionIds.size() &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidOnlinePlayer(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.roomCode is string && data.roomCode.size() >= 4 && data.roomCode.size() <= 12 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 40 &&
+             data.score is int && data.score >= 0 && data.score <= 100000 &&
+             data.correctCount is int && data.correctCount >= 0 && data.correctCount <= 40 &&
+             data.incorrectCount is int && data.incorrectCount >= 0 && data.incorrectCount <= 40 &&
+             data.lastAnsweredIndex is int && data.lastAnsweredIndex >= -1 && data.lastAnsweredIndex < 40 &&
+             data.lastAnswer is string && data.lastAnswer.size() <= 60 &&
+             data.lastAnswerCorrect is bool &&
+             data.joinedAt is timestamp && data.joinedAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /quiz_rooms/{roomCode} {
+      // Any signed-in user who knows the room PIN can read that specific room
+      allow get: if isSignedIn() && isValidId(roomCode);
+
+      // Listing rooms is strictly scoped to rooms hosted by the signed-in user
+      allow list: if isSignedIn() && existing().hostId == request.auth.uid;
+
+      // Only an authenticated user can create a room in LOBBY state as its host
+      allow create: if isSignedIn() &&
+                       isValidId(roomCode) &&
+                       incoming().hostId == request.auth.uid &&
+                       incoming().status == 'LOBBY' &&
+                       incoming().currentQuestionIndex == 0 &&
+                       incoming().keys().hasAll([
+                         'hostId', 'hostName', 'status', 'difficulty',
+                         'questionIds', 'currentQuestionIndex', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'hostId', 'hostName', 'status', 'difficulty',
+                         'questionIds', 'currentQuestionIndex', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidQuizRoom(incoming());
+
+      // Action-based updates by host only, locked once FINISHED
+      allow update: if isSignedIn() &&
+                       isValidId(roomCode) &&
+                       isValidQuizRoom(incoming()) &&
+                       existing().hostId == request.auth.uid &&
+                       existing().status != 'FINISHED' &&
+                       incoming().hostId == existing().hostId &&
+                       incoming().hostName == existing().hostName &&
+                       incoming().difficulty == existing().difficulty &&
+                       incoming().questionIds == existing().questionIds &&
+                       incoming().createdAt == existing().createdAt &&
+                       (
+                         // Action 1: Start or advance to next question
+                         (
+                           incoming().status == 'QUESTION' &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'currentQuestionIndex', 'updatedAt'])
+                         ) ||
+                         // Action 2: Reveal answer or finish quiz
+                         (
+                           incoming().status in ['REVEAL', 'FINISHED'] &&
+                           incoming().currentQuestionIndex == existing().currentQuestionIndex &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+                         )
+                       );
+
+      allow delete: if isSignedIn() &&
+                       isValidId(roomCode) &&
+                       existing().hostId == request.auth.uid;
+
+      match /players/{playerId} {
+        // Any signed-in user in the room can read player entries for live scoreboard
+        allow get: if isSignedIn() &&
+                      isValidId(roomCode) &&
+                      isValidId(playerId) &&
+                      exists(/databases/$(database)/documents/quiz_rooms/$(roomCode));
+
+        // Scoped list query requiring roomCode filter (no get() inside allow list)
+        allow list: if isSignedIn() &&
+                       isValidId(roomCode) &&
+                       resource.data.roomCode == roomCode;
+
+        // Players create their own entry while the room is in LOBBY
+        allow create: if isSignedIn() &&
+                         isValidId(roomCode) &&
+                         isValidId(playerId) &&
+                         playerId == request.auth.uid &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().roomCode == roomCode &&
+                         incoming().score == 0 &&
+                         incoming().correctCount == 0 &&
+                         incoming().incorrectCount == 0 &&
+                         incoming().lastAnsweredIndex == -1 &&
+                         incoming().lastAnswer == '' &&
+                         incoming().lastAnswerCorrect == false &&
+                         incoming().keys().hasAll([
+                           'userId', 'roomCode', 'displayName', 'score',
+                           'correctCount', 'incorrectCount', 'lastAnsweredIndex',
+                           'lastAnswer', 'lastAnswerCorrect', 'joinedAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'roomCode', 'displayName', 'score',
+                           'correctCount', 'incorrectCount', 'lastAnsweredIndex',
+                           'lastAnswer', 'lastAnswerCorrect', 'joinedAt', 'updatedAt'
+                         ]) &&
+                         isValidOnlinePlayer(incoming()) &&
+                         exists(/databases/$(database)/documents/quiz_rooms/$(roomCode)) &&
+                         get(/databases/$(database)/documents/quiz_rooms/$(roomCode)).data.status == 'LOBBY';
+
+        // Players update only their own answer/score during active QUESTION phase
+        allow update: if isSignedIn() &&
+                         isValidId(roomCode) &&
+                         isValidId(playerId) &&
+                         playerId == request.auth.uid &&
+                         isValidOnlinePlayer(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().roomCode == existing().roomCode &&
+                         incoming().displayName == existing().displayName &&
+                         incoming().joinedAt == existing().joinedAt &&
+                         incoming().score >= existing().score &&
+                         incoming().lastAnsweredIndex > existing().lastAnsweredIndex &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'score', 'correctCount', 'incorrectCount',
+                           'lastAnsweredIndex', 'lastAnswer', 'lastAnswerCorrect', 'updatedAt'
+                         ]) &&
+                         exists(/databases/$(database)/documents/quiz_rooms/$(roomCode)) &&
+                         get(/databases/$(database)/documents/quiz_rooms/$(roomCode)).data.status == 'QUESTION';
+
+        // Players can leave, or the room host can remove a participant
+        allow delete: if isSignedIn() &&
+                         isValidId(roomCode) &&
+                         isValidId(playerId) &&
+                         (
+                           playerId == request.auth.uid ||
+                           (
+                             exists(/databases/$(database)/documents/quiz_rooms/$(roomCode)) &&
+                             get(/databases/$(database)/documents/quiz_rooms/$(roomCode)).data.hostId == request.auth.uid
+                           )
+                         );
+      }
+    }
+  }
+}

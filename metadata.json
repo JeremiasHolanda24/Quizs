@@ -1,0 +1,6 @@
+{
+  "name": "Modals Quiz",
+  "description": "Interactive English modal verbs quiz with solo and group modes, filters, and detailed grammar feedback.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

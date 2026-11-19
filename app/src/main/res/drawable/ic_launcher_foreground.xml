@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Bold speech/quiz bubble silhouette centered in 66dp safe zone -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M34,30h40c4.4,0 8,3.6 8,8v26c0,4.4 -3.6,8 -8,8H52l-12,10v-10h-6c-4.4,0 -8,-3.6 -8,-8V38c0,-4.4 3.6,-8 8,-8z" />
+    <!-- Bold stylized 'M' emblem inside bubble -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M39,60V41h6.2l8.8,11.6L62.8,41H69v19h-5.6V49.2L55.2,59.4h-2.4L44.6,49.2V60H39z" />
+</vector>

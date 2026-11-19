@@ -1,0 +1,3189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modal Verbs Quiz v3.0</title>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-surface: #283548;
+      --bg-input: #0f172a;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent-badge: rgba(59, 130, 246, 0.18);
+      --accent-badge-text: #60a5fa;
+      --cat-badge-bg: rgba(168, 85, 247, 0.18);
+      --cat-badge-text: #c084fc;
+      --success-bg: rgba(16, 185, 129, 0.14);
+      --success-border: #10b981;
+      --success-text: #a7f3d0;
+      --error-bg: rgba(239, 68, 68, 0.14);
+      --error-border: #ef4444;
+      --error-text: #fecaca;
+      --maybe-bg: rgba(245, 158, 11, 0.16);
+      --maybe-border: #f59e0b;
+      --maybe-text: #fde68a;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    body.light-mode {
+      --bg-body: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-surface: #f8fafc;
+      --bg-input: #ffffff;
+      --border-color: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent-badge: #dbeafe;
+      --accent-badge-text: #1d4ed8;
+      --cat-badge-bg: #f3e8ff;
+      --cat-badge-text: #7e22ce;
+      --success-bg: #ecfdf5;
+      --success-border: #10b981;
+      --success-text: #065f46;
+      --error-bg: #fef2f2;
+      --error-border: #ef4444;
+      --error-text: #991b1b;
+      --maybe-bg: #fffbeb;
+      --maybe-border: #d97706;
+      --maybe-text: #92400e;
+      --shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.25s, color 0.25s;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .setup-wrapper,
+    .results-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .setup-card,
+    .results-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 560px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .card-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .theme-circle-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .theme-circle-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .theme-circle-btn.active {
+      background: var(--accent-badge);
+      border-color: var(--primary);
+      color: var(--accent-badge-text);
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 1.65rem;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .version-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--accent-badge);
+      color: var(--accent-badge-text);
+      padding: 4px 10px;
+      border-radius: 12px;
+      vertical-align: middle;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 20px;
+      line-height: 1.45;
+    }
+
+    .section-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    .mode-tabs,
+    .difficulty-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .mode-tab {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .mode-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .difficulty-card {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .difficulty-card .diff-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .difficulty-card .diff-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .difficulty-card.selected {
+      background: var(--accent-badge);
+      border-color: var(--primary);
+    }
+
+    .difficulty-card.selected .diff-title {
+      color: var(--primary);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.98rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-add {
+      padding: 0 18px;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .player-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .player-chip {
+      background: var(--accent-badge);
+      color: var(--accent-badge-text);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .player-chip button {
+      background: none;
+      border: none;
+      color: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .modal-filter-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .modal-chip-btn {
+      padding: 8px 13px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .modal-chip-btn.selected {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .filter-count-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+      text-align: right;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      margin-top: 18px;
+      border: none;
+      border-radius: 12px;
+      background-color: var(--primary);
+      color: #ffffff;
+      font-size: 1.02rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .header-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-pill {
+      background: var(--accent-badge);
+      color: var(--accent-badge-text);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .gear-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-section {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .progress-labels .pct {
+      color: var(--primary);
+    }
+
+    .progress-labels.done,
+    .progress-labels.done .pct {
+      color: var(--success-border);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-surface);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      border-radius: 4px;
+      transition: width 0.3s ease, background-color 0.25s ease;
+    }
+
+    .progress-fill.done {
+      background: var(--success-border);
+    }
+
+    .scoreboard-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .score-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-card.active-turn {
+      border-color: var(--primary);
+      background: var(--accent-badge);
+      font-weight: 700;
+    }
+
+    .remove-player-mini {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding-left: 4px;
+    }
+
+    .settings-drawer {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .drawer-actions,
+    .secondary-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: none;
+      background: #dc2626;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .quiz-container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .question-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .q-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .q-number {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--primary);
+    }
+
+    .category-tag {
+      background: var(--cat-badge-bg);
+      color: var(--cat-badge-text);
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .context-box {
+      background: var(--bg-surface);
+      border-left: 4px solid var(--primary);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+
+    .question-sentence {
+      font-size: 1.12rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-btn {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 0.98rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-btn.correct {
+      background-color: #059669;
+      border-color: #10b981;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .option-btn.maybe {
+      background-color: #d97706;
+      border-color: #f59e0b;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .option-btn.wrong {
+      background-color: #dc2626;
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    .typing-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-check {
+      padding: 0 18px;
+      border-radius: 10px;
+      border: none;
+      background-color: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-check:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .feedback-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .feedback-box.correct {
+      background-color: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .feedback-box.maybe {
+      background-color: var(--maybe-bg);
+      border: 1px solid var(--maybe-border);
+      color: var(--maybe-text);
+    }
+
+    .feedback-box.wrong {
+      background-color: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    .feedback-title {
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .feedback-detail-list {
+      margin-top: 6px;
+      padding-left: 18px;
+    }
+
+    .feedback-detail-list li {
+      margin-bottom: 4px;
+    }
+
+    .summary-footer {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 22px;
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+
+    /* Final Results Screen */
+    .trophy-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--accent-badge);
+      border: 1.5px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 6px auto 14px;
+    }
+
+    .total-score-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .total-score-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .total-score-value {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 4px 0 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stats-grid.three-cols {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stat-card {
+      border-radius: 14px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .stat-card.correct {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .stat-card.maybe {
+      background: var(--maybe-bg);
+      border: 1px solid var(--maybe-border);
+      color: var(--maybe-text);
+    }
+
+    .stat-card.wrong {
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    .streak-pill {
+      background: var(--maybe-bg);
+      border: 1px solid var(--maybe-border);
+      color: var(--maybe-text);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .timer-pill {
+      background: var(--accent-badge);
+      border: 1px solid var(--primary);
+      color: var(--accent-badge-text);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .timer-pill.urgent {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    .timer-toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .timer-toggle-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .btn-outline-guide {
+      width: 100%;
+      padding: 12px 14px;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1.5px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .btn-outline-guide:hover {
+      background: var(--accent-badge);
+    }
+
+    .btn-retry-mistakes {
+      width: 100%;
+      padding: 13px 14px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      border: 1.5px solid var(--maybe-border);
+      background: var(--maybe-bg);
+      color: var(--maybe-text);
+      font-size: 0.96rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-retry-mistakes:hover {
+      opacity: 0.9;
+    }
+
+    .xray-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .xray-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .xray-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .xray-bar-track {
+      width: 100%;
+      height: 7px;
+      background: var(--bg-card);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .xray-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .guide-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .guide-card-title {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .guide-card-sub {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .guide-card-body {
+      font-size: 0.88rem;
+      line-height: 1.48;
+      color: var(--text-main);
+    }
+
+    .guide-card-example {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border-left: 3px solid var(--primary);
+      font-size: 0.84rem;
+      font-style: italic;
+      color: var(--text-muted);
+    }
+
+    .online-timer-bar-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-surface);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .online-timer-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+      transition: width 0.45s linear, background-color 0.2s ease;
+    }
+
+    .online-timer-bar-fill.urgent {
+      background: var(--error-border);
+    }
+
+    .stat-count {
+      font-size: 1.7rem;
+      font-weight: 800;
+      margin: 4px 0 2px;
+    }
+
+    .stat-label {
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      font-size: 0.92rem;
+    }
+
+    .leaderboard-item.leader {
+      background: var(--accent-badge);
+      border-color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* ONLINE KAHOOT MODE */
+    .online-error-box {
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .online-pin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 22px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .online-pin-value {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: 6px;
+      color: var(--primary);
+      margin: 8px 0;
+    }
+
+    .online-pin-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .online-player-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .online-player-row.me {
+      border-color: var(--primary);
+      border-width: 1.5px;
+    }
+
+    .online-rank-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent-badge);
+      color: var(--accent-badge-text);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .online-rank-badge.first {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .online-wait-banner {
+      background: var(--accent-badge);
+      border: 1px solid var(--primary);
+      color: var(--accent-badge-text);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      font-weight: 600;
+      margin-top: 14px;
+    }
+
+    .online-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--primary);
+      padding: 10px 18px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 9999;
+    }
+
+    #answerFlashOverlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.35s ease-out;
+      z-index: 9990;
+    }
+
+    #answerFlashOverlay.flash-correct {
+      box-shadow: inset 0 0 56px 18px rgba(16, 185, 129, 0.55), inset 0 0 0 5px rgba(16, 185, 129, 0.72);
+      opacity: 1;
+      transition: opacity 0.24s ease-in;
+    }
+
+    #answerFlashOverlay.flash-maybe {
+      box-shadow: inset 0 0 56px 18px rgba(245, 158, 11, 0.56), inset 0 0 0 5px rgba(245, 158, 11, 0.78);
+      opacity: 1;
+      transition: opacity 0.24s ease-in;
+    }
+
+    #answerFlashOverlay.flash-wrong {
+      box-shadow: inset 0 0 56px 18px rgba(239, 68, 68, 0.58), inset 0 0 0 5px rgba(239, 68, 68, 0.75);
+      opacity: 1;
+      transition: opacity 0.24s ease-in;
+    }
+
+    .podium-stage {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 10px;
+      align-items: end;
+      margin-top: 20px;
+    }
+
+    .podium-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .podium-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .podium-pts {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 2px 0 8px;
+    }
+
+    .podium-bar {
+      width: 100%;
+      border-radius: 14px 14px 6px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .podium-bar.first {
+      height: 132px;
+      background: rgba(245, 158, 11, 0.22);
+      border: 2px solid #f59e0b;
+      color: #f59e0b;
+    }
+
+    .podium-bar.second {
+      height: 96px;
+      background: rgba(148, 163, 184, 0.22);
+      border: 1.5px solid #94a3b8;
+      color: #94a3b8;
+    }
+
+    .podium-bar.third {
+      height: 76px;
+      background: rgba(217, 119, 6, 0.22);
+      border: 1.5px solid #d97706;
+      color: #d97706;
+    }
+
+    .podium-bar.empty {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .ranking-fab {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 1.45rem;
+      box-shadow: 0 8px 22px rgba(37, 99, 235, 0.45);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+    }
+
+    .ranking-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 9995;
+      padding: 16px;
+    }
+
+    .ranking-modal-sheet {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 22px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 82vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SETUP SCREEN -->
+  <div id="setupScreen" class="setup-wrapper">
+    <div class="setup-card">
+      <div class="card-top-bar">
+        <span class="version-badge">v3.0</span>
+        <button type="button" id="quickThemeBtn" class="theme-circle-btn" title="Alternar Tema">🌓</button>
+      </div>
+
+      <h1>Modal Verbs Quiz</h1>
+      <p class="subtitle">Configure os jogadores, escolha os verbos modais e selecione a dificuldade.</p>
+
+      <span class="section-label">1. Modo de Jogo</span>
+      <div class="mode-tabs">
+        <button type="button" id="tabSolo" class="mode-tab active">Individual</button>
+        <button type="button" id="tabGroup" class="mode-tab">Grupo Online</button>
+      </div>
+
+      <div id="soloInputBox">
+        <input type="text" id="soloNameInput" placeholder="Seu nome de jogador..." />
+      </div>
+
+      <div id="groupInputBox" class="hidden">
+        <div class="mode-tabs" style="margin-bottom: 10px;">
+          <button type="button" id="onlineCreateTab" class="mode-tab active">Criar Sala</button>
+          <button type="button" id="onlineJoinTab" class="mode-tab">Entrar com PIN</button>
+        </div>
+        <input type="text" id="onlineNameInput" placeholder="Seu apelido na sala..." maxlength="32" style="margin-bottom: 10px;" />
+        <input type="text" id="onlinePinInput" class="hidden" placeholder="PIN da sala (ex: K7M4P2)" maxlength="8" style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700;" />
+        <div id="onlineSetupError" class="online-error-box hidden"></div>
+      </div>
+
+      <div id="quizConfigSections">
+        <span class="section-label">2. Escolha os Verbos Modais</span>
+        <div id="modalFilterGrid" class="modal-filter-grid"></div>
+        <div id="filterCountInfo" class="filter-count-info">40 exercícios selecionados</div>
+
+        <span class="section-label">3. Dificuldade</span>
+        <div class="difficulty-grid">
+          <button type="button" id="diffEasyBtn" class="difficulty-card selected">
+            <span class="diff-title">✨ Fácil</span>
+            <span class="diff-desc">Com contexto e categoria</span>
+          </button>
+          <button type="button" id="diffNormalBtn" class="difficulty-card">
+            <span class="diff-title">🎯 Normal</span>
+            <span class="diff-desc">Com contexto, sem categoria</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" id="startQuizBtn" class="btn-primary">▶ Iniciar Exercícios</button>
+      <button type="button" id="openQuickGuideBtn" class="btn-outline-guide">📖 Guia Rápido dos Modais</button>
+
+      <div style="margin-top:16px; padding:12px 14px; border-radius:12px; background:var(--bg-surface); border:1px solid var(--border-color); font-size:0.8rem; color:var(--text-muted); text-align:center; line-height:1.45;">
+        <strong style="color:var(--text-main);">Observação:</strong> Esse quiz foi feito via IA usando de base esse livro:
+        <a href="https://www.cambridge.org/9781108457651" target="_blank" rel="noopener noreferrer" style="color:var(--primary); font-weight:600; text-decoration:underline;">English Grammar in Use (5th Edition — Raymond Murphy, Cambridge)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONLINE ROOM SCREEN (KAHOOT MODE - NO LOGIN REQUIRED) -->
+  <div id="onlineRoomScreen" class="hidden">
+    <header class="sticky-header">
+      <div class="header-inner">
+        <div class="header-top">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span id="onlineTopPin" class="version-badge" style="font-size:0.85rem; letter-spacing:1px;">PIN ------</span>
+            <span id="onlineTopCounter" style="font-weight:700; font-size:0.9rem;"></span>
+          </div>
+          <div class="header-controls">
+            <button type="button" id="onlineSoundBtn" class="theme-circle-btn active" title="Ativar/Desativar Som">🔊</button>
+            <button type="button" id="onlineThemeBtn" class="theme-circle-btn" title="Alternar Tema">🌓</button>
+            <button type="button" id="onlineLeaveTopBtn" class="theme-circle-btn" title="Sair da Sala" style="color:var(--error-border);">🚪</button>
+          </div>
+        </div>
+
+        <div id="onlineProgressSection" class="progress-section hidden">
+          <div class="progress-labels">
+            <span id="onlineQuestionLabel">Questão 1 de 1</span>
+            <span id="onlineAnsweredLabel" class="pct">0/0 responderam</span>
+          </div>
+          <div class="progress-track">
+            <div id="onlineProgressFill" class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="onlineRoomBody" class="quiz-container" style="padding-top:16px;"></main>
+  </div>
+  <div id="onlineToast" class="online-toast hidden"></div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen" class="hidden">
+    <header class="sticky-header">
+      <div class="header-inner">
+        <div class="header-top">
+          <span class="header-title">Modal Verbs Quiz <span class="version-badge">v3.0</span></span>
+          <div class="header-controls" style="gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+            <span id="streakPill" class="streak-pill hidden">🔥 2x</span>
+            <span id="progressCounter" class="progress-pill">0 / 40</span>
+            <button type="button" id="gearBtn" class="gear-btn" title="Configurações">⚙️</button>
+          </div>
+        </div>
+
+        <div class="progress-section">
+          <div id="progressLabels" class="progress-labels">
+            <span id="remainingLabel">Restam 40 de 40</span>
+            <span id="progressPct" class="pct">0%</span>
+          </div>
+          <div class="progress-track">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div id="scoreboardBar" class="scoreboard-bar"></div>
+
+        <div id="settingsDrawer" class="settings-drawer hidden">
+          <div class="setting-row">
+            <span><strong>Aparência (Tema)</strong></span>
+            <button type="button" id="drawerThemeBtn" class="theme-circle-btn" title="Alternar Tema">🌓</button>
+          </div>
+
+          <div class="setting-row">
+            <span><strong>Efeitos sonoros</strong></span>
+            <button type="button" id="soundToggleBtn" class="theme-circle-btn active" title="Ativar/Desativar Som">🔊</button>
+          </div>
+
+          <div class="drawer-actions">
+            <button type="button" id="shuffleBtn" class="btn-secondary">🔀 Embaralhar Lista</button>
+            <button type="button" id="newQuizBtn" class="btn-danger">🔄 Novo Quiz</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="questionsList" class="quiz-container"></main>
+
+    <div class="quiz-container">
+      <div class="summary-footer">
+        <h3 style="margin-bottom: 8px;">Fim da lista de exercícios</h3>
+        <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 14px;">
+          Você pode revisar suas respostas acima ou iniciar uma nova rodada com outros modais.
+        </p>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+          <button type="button" id="footerResultsBtn" class="btn-primary hidden" style="margin-top: 0; max-width: 280px;">🏆 Ver Resultado Final</button>
+          <button type="button" id="footerRestartBtn" class="btn-primary" style="margin-top: 0; max-width: 280px;">Novo Quiz</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="resultsScreen" class="results-wrapper hidden">
+    <div class="results-card">
+      <div class="card-top-bar">
+        <span class="version-badge">v3.0</span>
+        <button type="button" id="resultsThemeBtn" class="theme-circle-btn" title="Alternar Tema">🌓</button>
+      </div>
+
+      <div class="trophy-circle">🏆</div>
+      <h1>Resultado Final</h1>
+      <p id="resultsSubtitle" class="subtitle"></p>
+
+      <div class="total-score-box">
+        <div class="total-score-label">Pontuação Total</div>
+        <div id="resultsTotalScore" class="total-score-value">0 / 40</div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin-top:4px;">
+          <span id="resultsAccuracyBadge" class="version-badge">0% de acerto</span>
+          <span id="resultsBestStreakBadge" class="version-badge hidden" style="background:var(--maybe-bg); color:var(--maybe-text); border:1px solid var(--maybe-border);">🔥 Melhor sequência: 0x</span>
+          <span id="resultsNewHighScoreBadge" class="version-badge hidden" style="background:var(--success-bg); color:var(--success-text); border:1px solid var(--success-border);">✨ Novo Recorde!</span>
+        </div>
+        <div id="resultsBestScoreNote" class="hidden" style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;"></div>
+      </div>
+
+      <div id="resultsStatsGrid" class="stats-grid">
+        <div class="stat-card correct">
+          <div>✅</div>
+          <div id="resultsCorrectCount" class="stat-count">0</div>
+          <div class="stat-label">Corretas</div>
+        </div>
+        <div id="resultsMaybeCard" class="stat-card maybe hidden">
+          <div>🤔</div>
+          <div id="resultsMaybeCount" class="stat-count">0</div>
+          <div class="stat-label">Talvez</div>
+        </div>
+        <div class="stat-card wrong">
+          <div>❌</div>
+          <div id="resultsWrongCount" class="stat-count">0</div>
+          <div class="stat-label">Incorretas</div>
+        </div>
+      </div>
+
+      <div id="resultsModalXraySection" class="hidden">
+        <span class="section-label" style="margin-top:0;">📊 Raio-X por Verbo Modal</span>
+        <div id="resultsModalXrayList" class="xray-card"></div>
+      </div>
+
+      <div id="resultsLeaderboardSection" class="hidden">
+        <span class="section-label" style="margin-top:0;">Placar Final</span>
+        <div id="resultsLeaderboardList" class="leaderboard-list"></div>
+      </div>
+
+      <button type="button" id="retryMistakesBtn" class="btn-retry-mistakes hidden">🎯 Refazer só as que errei / Talvez</button>
+      <button type="button" id="playAgainBtn" class="btn-primary" style="margin-top: 4px;">🔁 Jogar Novamente</button>
+
+      <div class="secondary-actions" style="margin-top: 10px;">
+        <button type="button" id="reviewAnswersBtn" class="btn-secondary">👁️ Revisar Respostas</button>
+        <button type="button" id="resultsNewQuizBtn" class="btn-secondary">⚙️ Novo Quiz</button>
+      </div>
+
+      <div style="margin-top:16px; padding:12px 14px; border-radius:12px; background:var(--bg-surface); border:1px solid var(--border-color); font-size:0.8rem; color:var(--text-muted); text-align:center; line-height:1.45;">
+        <strong style="color:var(--text-main);">Observação:</strong> Esse quiz foi feito via IA usando de base esse livro:
+        <a href="https://www.cambridge.org/9781108457651" target="_blank" rel="noopener noreferrer" style="color:var(--primary); font-weight:600; text-decoration:underline;">English Grammar in Use (5th Edition — Raymond Murphy, Cambridge)</a>
+      </div>
+    </div>
+  </div>
+  <div id="answerFlashOverlay"></div>
+  <div id="quickGuideModal" class="ranking-modal-backdrop hidden">
+    <div class="ranking-modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 style="font-size:1.2rem; font-weight:800;">📖 Guia Rápido dos Modais</h2>
+        <button type="button" id="closeQuickGuideBtn" class="theme-circle-btn" title="Fechar">✕</button>
+      </div>
+      <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:14px; line-height:1.45;">
+        Resumo completo baseado em <em>English Grammar in Use</em> (Raymond Murphy, 5ª ed., Units 26–37).
+      </p>
+      <div class="guide-card">
+        <div class="guide-card-title">1. Regras de Ouro dos Modais</div>
+        <div class="guide-card-sub">Estrutura Geral</div>
+        <div class="guide-card-body">Modais puros (<em>can, could, may, might, must, should, would</em>) nunca levam <strong>-s</strong> na 3ª pessoa, nunca usam <strong>to</strong> antes do verbo principal e fazem perguntas/negativas sem <em>do/does</em>. <strong>Exceção:</strong> <em>have to</em> é semi-modal e usa <em>do/does/did</em>.</div>
+        <div class="guide-card-example">"She can swim" (não "cans" nem "can to"). / "Do you have to work?"</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">2. Habilidade &amp; Permissão Informal</div>
+        <div class="guide-card-sub">Can / Can't (Unit 26)</div>
+        <div class="guide-card-body"><strong>Can</strong> expressa habilidade no presente, permissão informal ou possibilidade geral. <strong>Can't</strong> (ou <em>cannot</em>) expressa incapacidade no presente ou impossibilidade.</div>
+        <div class="guide-card-example">"She can speak four languages." / "Can I borrow your pen?"</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">3. Passado &amp; Pedidos Educados</div>
+        <div class="guide-card-sub">Could / Couldn't (Units 26–27)</div>
+        <div class="guide-card-body"><strong>Could</strong> indica habilidade geral no passado, pedidos educados ou "talvez" no presente/futuro. Para algo específico realizado uma única vez no passado, prefira <em>was/were able to</em> ou <em>managed to</em>. Já <strong>couldn't</strong> funciona em qualquer negativa no passado.</div>
+        <div class="guide-card-example">"When I was five, I could swim." / "Could you help me?" / "I couldn't find my keys."</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">4. Possibilidade ("Talvez")</div>
+        <div class="guide-card-sub">May / Might / Could (Units 29–30)</div>
+        <div class="guide-card-body">Em situações reais no presente ou futuro, <strong>may</strong>, <strong>might</strong> e <strong>could</strong> têm o mesmo sentido ("talvez"). Nunca use <em>can</em> para "talvez" em uma situação específica! Em situações irreais/hipotéticas, use <strong>might</strong> (não <em>may</em>).</div>
+        <div class="guide-card-example">"Take an umbrella — it might/may/could rain." / "If they paid better, I might stay."</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">5. Escala de Formalidade (Permissão)</div>
+        <div class="guide-card-sub">Can → Could → May (Unit 37)</div>
+        <div class="guide-card-body"><strong>Can I...?</strong> é informal (amigos e família). <strong>Could I...?</strong> é educado e funciona bem quase sempre. <strong>May I...?</strong> é a forma mais formal (professores, chefes, desconhecidos ou ambiente oficial).</div>
+        <div class="guide-card-example">"Can I sit here?" → "Could I open the window?" → "May I leave early, professor?"</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">6. Obrigação Interna vs. Externa</div>
+        <div class="guide-card-sub">Must vs. Have to (Unit 31)</div>
+        <div class="guide-card-body"><strong>Must</strong> indica obrigação pessoal/interna (o falante sente que é necessário) ou regra escrita/aviso. <strong>Have to</strong> indica obrigação externa (leis, escola, trabalho). Atenção: no passado, use sempre <strong>had to</strong> (não existe passado de <em>must</em> para obrigação).</div>
+        <div class="guide-card-example">"I must call my mom." / "Drivers have to wear seatbelts." / "Yesterday I had to study."</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">7. Pegadinha Clássica: Proibição vs. Opcional</div>
+        <div class="guide-card-sub">Mustn't vs. Don't have to (Unit 31C)</div>
+        <div class="guide-card-body"><strong>Mustn't</strong> = PROIBIÇÃO estrita (não faça de jeito nenhum!). <strong>Don't have to</strong> = AUSÊNCIA DE OBRIGAÇÃO (é opcional — você não precisa fazer, mas pode se quiser).</div>
+        <div class="guide-card-example">"Visitors mustn't smoke here" (proibido) ≠ "You don't have to wake up early" (opcional).</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">8. Dedução Lógica (Certeza vs. Impossibilidade)</div>
+        <div class="guide-card-sub">Must / Can't (Unit 28)</div>
+        <div class="guide-card-body">Para concluir que algo é quase certo com base em evidências, use <strong>must</strong>. Para concluir que algo é logicamente impossível, use <strong>can't</strong> — nunca use <em>mustn't</em> para dedução!</div>
+        <div class="guide-card-example">"The lights are on — he must be home." / "He just ate — he can't be hungry."</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">9. Conselhos, Recomendações &amp; Expectativa</div>
+        <div class="guide-card-sub">Should / Shouldn't / Ought to (Units 32–33)</div>
+        <div class="guide-card-body"><strong>Should</strong> (ou <em>ought to</em>) dá conselhos, recomendações ou expressa expectativa lógica, sendo mais suave que <em>must</em>. <strong>Shouldn't</strong> indica que algo não é boa ideia (sem ser proibição legal).</div>
+        <div class="guide-card-example">"You should see a doctor." / "You shouldn't stay up so late." / "The train should arrive at 8."</div>
+      </div>
+      <div class="guide-card" style="margin-bottom:4px;">
+        <div class="guide-card-title">10. Cortesia, Ofertas &amp; Situações Hipotéticas</div>
+        <div class="guide-card-sub">Would (Units 36–37)</div>
+        <div class="guide-card-body">Muito usado em oferecimentos e pedidos bem educados (<em>Would you like...</em>, <em>Would you mind...</em>), preferências (<em>I would rather...</em>) e situações imaginárias na 2ª condicional.</div>
+        <div class="guide-card-example">"Would you like some coffee?" / "Would you mind closing the door?" / "I would travel the world."</div>
+      </div>
+    </div>
+  </div>
+  <div id="rankingModal" class="ranking-modal-backdrop hidden">
+    <div class="ranking-modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 style="font-size:1.2rem; font-weight:800;">📊 Ranking Completo</h2>
+        <button type="button" id="closeRankingModalBtn" class="theme-circle-btn" title="Fechar">✕</button>
+      </div>
+      <div id="rankingModalBody"></div>
+    </div>
+  </div>
+  <canvas id="confettiCanvas" class="hidden" style="position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; z-index:9998;"></canvas>
+
+  <script>
+    const modalDefinitions = {
+      "can": { name: "Can", role: "Habilidade no presente, permissão informal ou possibilidade geral", structure: "Sujeito + can + verbo principal no infinitivo sem 'to'", contrast: "Diferente de 'could' (passado/mais polido) e 'may' (mais formal)." },
+      "can't": { name: "Can't / Cannot", role: "Incapacidade no presente ou impossibilidade lógica (dedução negativa)", structure: "Sujeito + can't + verbo principal no infinitivo sem 'to'", contrast: "Não confunda com 'mustn't': 'can't' indica algo impossível, enquanto 'mustn't' indica proibição." },
+      "cannot": { name: "Cannot (Can't)", role: "Incapacidade no presente ou impossibilidade lógica", structure: "Sujeito + cannot + verbo principal sem 'to'", contrast: "Forma completa e mais enfática de 'can't'." },
+      "could": { name: "Could", role: "Habilidade geral no passado, pedido educado ou possibilidade ('talvez') no presente/futuro", structure: "Sujeito + could + verbo principal sem 'to'", contrast: "Para possibilidade ('talvez'), equivale a 'may' e 'might' (diferente de 'can', que não é usado para 'talvez' em situações específicas). No passado, 'could' indica habilidade geral." },
+      "couldn't": { name: "Couldn't", role: "Falta de habilidade ou impossibilidade no passado (em qualquer situação)", structure: "Sujeito + couldn't + verbo principal sem 'to'", contrast: "Diferente de 'could' afirmativo, 'couldn't' pode ser usado tanto para habilidade geral quanto para uma situação específica no passado." },
+      "may": { name: "May", role: "Possibilidade ('talvez') no presente/futuro ou permissão formal", structure: "May + sujeito + verbo (perguntas) / Sujeito + may + verbo", contrast: "Para expressar 'talvez' em situações reais, 'may' e 'might' têm o mesmo sentido (Murphy, Units 29–30). Para permissão, 'may' é mais formal que 'can' e 'could'." },
+      "might": { name: "Might", role: "Possibilidade ('talvez') no presente/futuro ou em situações hipotéticas/irreais", structure: "Sujeito + might + verbo principal sem 'to'", contrast: "Em situações reais, tem o mesmo sentido de 'may' e 'could' ('talvez'). Em situações irreais/hipotéticas ('If they paid me better, I might...'), usa-se 'might' e não 'may'." },
+      "must": { name: "Must", role: "Obrigação forte/interna, regra rígida ou dedução lógica quase certa", structure: "Sujeito + must + verbo principal sem 'to'", contrast: "Para dedução afirmativa usa-se 'must', mas para dedução negativa usa-se 'can't'." },
+      "mustn't": { name: "Mustn't", role: "Proibição estrita (algo que não deve ser feito de forma alguma)", structure: "Sujeito + mustn't + verbo principal sem 'to'", contrast: "Totalmente diferente de 'don't have to': 'mustn't' proíbe, enquanto 'don't have to' apenas dispensa a obrigação." },
+      "have to": { name: "Have to", role: "Obrigação externa (leis, normas institucionais ou necessidade imposta)", structure: "Sujeito + have/has to + verbo principal", contrast: "Semelhante a 'must', mas foca em regras vindas de fora (leis, escola, trabalho)." },
+      "don't have to": { name: "Don't have to", role: "Ausência de obrigação ou necessidade (é opcional)", structure: "Sujeito + don't/doesn't have to + verbo principal", contrast: "Não significa proibição! Significa que você não precisa fazer, mas pode se quiser." },
+      "should": { name: "Should", role: "Conselho, recomendação ou expectativa lógica", structure: "Sujeito + should + verbo principal sem 'to'", contrast: "Mais suave que 'must' ou 'have to', pois funciona como orientação, não imposição." },
+      "shouldn't": { name: "Shouldn't", role: "Conselho negativo (algo que não é recomendado fazer)", structure: "Sujeito + shouldn't + verbo principal sem 'to'", contrast: "Indica que algo é má ideia, sem ter o peso de uma proibição legal como 'mustn't'." },
+      "would": { name: "Would", role: "Pedidos muito educados, oferecimentos ou situações hipotéticas", structure: "Would + sujeito + verbo / Sujeito + would + verbo", contrast: "Muito usado em expressões de cortesia ('Would you like...', 'Would you mind...') e condicionais." }
+    };
+
+    const allQuestions = [
+      { id: 1, group: "can", category: "Habilidade no Presente", context: "Você está apresentando uma colega poliglota que domina quatro idiomas hoje em dia.", q: "She ___ speak four languages fluently.", type: "choice", options: ["can", "must", "should", "might"], answer: ["can"], reason: "O contexto descreve uma capacidade atual e comprovada da pessoa no presente." },
+      { id: 2, group: "should", category: "Conselho / Recomendação", context: "Um amigo está tossindo muito forte há dias e você quer orientá-lo a procurar ajuda médica.", q: "You have a terrible cough. You ___ see a doctor.", type: "choice", options: ["should", "must", "can't", "may"], answer: ["should"], maybe: ["must"], maybeReason: "Depende do contexto: 'must' também pode estar certo se você quiser dar uma recomendação bem forte e urgente (Murphy, Unit 31A). Como conselho comum, 'should' é o mais natural.", reason: "Estamos dando uma recomendação útil para a saúde de alguém, sem ser uma ordem legal." },
+      { id: 3, group: "must", category: "Proibição Estrita", context: "Placa de aviso na ala de internação de um hospital onde o cigarro é terminantemente proibido.", q: "Visitors ___ smoke inside the hospital rooms.", type: "choice", options: ["mustn't", "don't have to", "couldn't", "might not"], answer: ["mustn't"], reason: "Fumar em quartos de hospital é uma proibição rígida de segurança e saúde." },
+      { id: 4, group: "may", category: "Permissão Formal", context: "Um aluno precisa sair mais cedo da aula e faz um pedido respeitoso ao professor universitário.", q: "___ I leave the classroom early today, professor?", type: "choice", options: ["May", "Could", "Must", "Should"], answer: ["may"], maybe: ["could"], maybeReason: "Depende do contexto: 'Could I...' também é educado e gramaticalmente correto para pedir permissão (Murphy, Unit 37A). Porém, com um professor em ambiente formal, 'May I...' é ainda mais formal.", reason: "Ao falar com uma autoridade (professor) em ambiente formal, 'May I...' é a escolha mais adequada." },
+      { id: 5, group: "might", category: "Possibilidade ('Talvez')", context: "O céu tem algumas nuvens e talvez chova mais tarde, mas a previsão do tempo não dá certeza.", q: "Take an umbrella. It ___ rain later.", type: "type", answer: ["might", "may", "could"], reason: "Para expressar 'talvez' (possibilidade futura sem certeza), podemos usar 'might', 'may' ou 'could' (não 'can')." },
+      { id: 6, group: "must", category: "Dedução Lógica", context: "Você chega na frente da casa de um amigo, vê as luzes acesas e o carro dele estacionado na garagem.", q: "The lights are on and his car is outside. He ___ be at home.", type: "choice", options: ["must", "might", "can't", "shouldn't"], answer: ["must"], maybe: ["might"], maybeReason: "Depende do contexto: 'might' também faz sentido se você quiser dizer 'talvez ele esteja em casa' sem certeza absoluta (Units 29–30). Como há duas evidências fortes (luzes + carro), 'must' expressa melhor a dedução lógica.", reason: "As evidências visíveis levam a uma conclusão lógica quase certa de que ele está em casa (Unit 28: dedução afirmativa = 'must')." },
+      { id: 7, group: "have to", category: "Ausência de Obrigação", context: "Você percebe que amanhã é domingo e não há trabalho nem aula agendada pela manhã.", q: "Tomorrow is Sunday, so I ___ wake up early.", type: "choice", options: ["don't have to", "mustn't", "can't", "shouldn't"], answer: ["don't have to"], reason: "Não existe necessidade ou obrigação de acordar cedo no domingo, mas você pode se quiser." },
+      { id: 8, group: "could", category: "Habilidade no Passado", context: "Alguém está relembrando a infância e contando o que já conseguia fazer aos cinco anos de idade.", q: "When I was five, I ___ swim very well.", type: "choice", options: ["could", "can", "may", "must"], answer: ["could"], reason: "A marca temporal 'When I was five' exige o modal de habilidade no passado." },
+      { id: 9, group: "have to", category: "Obrigação Externa (Lei)", context: "Regra do código de trânsito que obriga todos os motoristas a pararem diante do sinal vermelho.", q: "Drivers ___ stop when the traffic light is red.", type: "choice", options: ["have to", "might", "could", "would"], answer: ["have to"], reason: "Trata-se de uma exigência legal imposta pelas leis de trânsito a todos os condutores." },
+      { id: 10, group: "can", category: "Impossibilidade Lógica", context: "Alguém diz que viu John na porta, mas você sabe com certeza que ele embarcou para Londres hoje cedo.", q: "That ___ be John at the door; he flew to London this morning.", type: "type", answer: ["can't", "cannot"], reason: "Quando uma evidência torna uma situação logicamente impossível, usamos a dedução negativa." },
+      { id: 11, group: "would", category: "Oferecimento Educado", context: "Um anfitrião recebe uma visita em casa e oferece uma xícara de café com gentileza.", q: "___ you like a cup of coffee?", type: "choice", options: ["Would", "Must", "Should", "Can"], answer: ["would"], reason: "A estrutura 'Would you like...' é a forma padrão e polida para oferecer algo em inglês." },
+      { id: 12, group: "should", category: "Conselho Negativo", context: "Um colega gasta todo o salário assim que recebe e você o aconselha a evitar esse hábito.", q: "You ___ spend all your money on video games.", type: "choice", options: ["shouldn't", "must", "can", "may"], answer: ["shouldn't"], reason: "É um conselho para evitar uma atitude prejudicial, sem ser uma proibição oficial." },
+      { id: 13, group: "could", category: "Pedido Educado", context: "Durante um jantar, você pede com educação para alguém passar o saleiro que está longe.", q: "___ you pass me the salt, please?", type: "choice", options: ["Could", "Can", "Must", "Should"], answer: ["could"], maybe: ["can"], maybeReason: "Depende do contexto: 'Can you...' também está correto para fazer pedidos no dia a dia entre amigos ou família (Murphy, Unit 37A). Porém, 'Could you...' soa mais educado e polido.", reason: "'Could you...' suaviza o pedido e demonstra cortesia ao solicitar um favor." },
+      { id: 14, group: "have to", category: "Obrigação Externa (Regra)", context: "Norma interna de uma escola que exige o uso diário de uniforme por todos os estudantes.", q: "At my school, students ___ wear a uniform every day.", type: "choice", options: ["have to", "must", "might", "could"], answer: ["have to"], maybe: ["must"], maybeReason: "Depende do contexto: 'must' também pode expressar regras escolares, principalmente em regulamentos escritos (Unit 31C). Na fala cotidiana, 'have to' é preferido para obrigações externas.", reason: "É uma obrigação estabelecida pela instituição de ensino, não uma escolha pessoal." },
+      { id: 15, group: "can", category: "Incapacidade no Presente", context: "Um amigo pede ajuda agora, mas você está ocupado com outra tarefa e não tem condição de ajudar.", q: "I'm sorry, I ___ help you right now because I'm busy.", type: "type", answer: ["can't", "cannot"], reason: "Indica falta de condição ou impossibilidade de realizar a ação no momento atual." },
+      { id: 16, group: "might", category: "Possibilidade ('Talvez')", context: "Você não tem certeza de onde Sarah está; talvez ela esteja na biblioteca.", q: "I'm not sure where Sarah is. She ___ be in the library.", type: "choice", options: ["might", "must", "can't", "have to"], answer: ["might"], reason: "A expressão 'I'm not sure' indica 'talvez' (possibilidade). Aqui 'might' é a única opção válida — fora das alternativas, 'may' ou 'could' também serviriam." },
+      { id: 17, group: "must", category: "Proibição Estrita", context: "Você está contando uma informação confidencial e exige que a outra pessoa não espalhe.", q: "This is a secret. You ___ tell anyone!", type: "choice", options: ["mustn't", "don't have to", "might not", "couldn't"], answer: ["mustn't"], reason: "Reforça uma proibição forte de revelar o segredo a outras pessoas." },
+      { id: 18, group: "could", category: "Incapacidade no Passado", context: "Em uma festa ontem à noite, o volume do som estava tão alto que ninguém conseguia conversar.", q: "The music was so loud that we ___ hear each other.", type: "choice", options: ["couldn't", "can't", "mustn't", "shouldn't"], answer: ["couldn't"], reason: "O verbo 'was' situa a cena no passado, exigindo a forma negativa passada de 'can'." },
+      { id: 19, group: "should", category: "Conselho / Orientação", context: "Um estudante quer ser aprovado em uma prova difícil e pede uma dica de preparação.", q: "If you want to pass the exam, you ___ study harder.", type: "choice", options: ["should", "have to", "might", "may"], answer: ["should"], maybe: ["have to"], maybeReason: "Depende do contexto: 'have to' também funciona se você quiser enfatizar que estudar mais é uma necessidade indispensável para passar, não apenas um conselho amigável ('should').", reason: "Apresenta a melhor recomendação para que a pessoa alcance o objetivo desejado." },
+      { id: 20, group: "must", category: "Obrigação Interna / Urgente", context: "Você lembra que hoje é aniversário da sua mãe e sente um dever pessoal forte de ligar para ela.", q: "I really ___ call my mother today; it's her birthday.", type: "type", answer: ["must", "have to"], reason: "Expressa uma necessidade urgente e um compromisso pessoal importante." },
+      { id: 21, group: "have to", category: "Ausência de Obrigação", context: "Aviso na bilheteria de um museu informando que aos domingos a entrada é gratuita.", q: "The museum is free on Sundays. You ___ pay to enter.", type: "choice", options: ["don't have to", "mustn't", "can't", "shouldn't"], answer: ["don't have to"], reason: "Como o acesso é gratuito, não há exigência de pagamento para entrar." },
+      { id: 22, group: "can", category: "Permissão Informal", context: "Você está sentado ao lado de um amigo próximo e pede a caneta dele emprestada rapidamente.", q: "___ I borrow your pen for a second?", type: "choice", options: ["Can", "Could", "Must", "Should"], answer: ["can"], maybe: ["could"], maybeReason: "Depende do contexto: 'Could I...' também está certo e deixa o pedido um pouco mais educado (Unit 37A). Entre amigos próximos no dia a dia, 'Can I...' soa mais natural e informal.", reason: "Em situações cotidianas e informais entre amigos, 'Can I...' é a forma mais natural." },
+      { id: 23, group: "must", category: "Dedução Lógica", context: "Seu amigo acabou de dirigir por 12 horas seguidas sem parar e você deduz que ele está exausto.", q: "You drove for 12 hours! You ___ be exhausted.", type: "choice", options: ["must", "can't", "shouldn't", "might not"], answer: ["must"], reason: "Após 12 horas dirigindo, a conclusão lógica evidente é que a pessoa está muito cansada." },
+      { id: 24, group: "can", category: "Possibilidade Geral", context: "Descrição climática sobre como os invernos costumam ser rigorosos naquela região.", q: "Winters in this region ___ be very cold.", type: "choice", options: ["can", "could", "mustn't", "have to"], answer: ["can"], maybe: ["could"], maybeReason: "Depende do contexto: 'could' também pode indicar possibilidade, mas normalmente para uma situação específica ou futura. Para fatos climáticos gerais que costumam acontecer, 'can' é a escolha clássica.", reason: "'Can' também expressa características ou eventos que costumam acontecer de forma geral." },
+      { id: 25, group: "should", category: "Conselho de Bem-estar", context: "Você percebe que seu colega está bocejando e com aparência cansada durante o dia.", q: "You look tired. You ___ go to bed earlier.", type: "type", answer: ["should", "ought to"], reason: "Dá uma sugestão saudável e amigável para resolver o cansaço ('should' ou 'ought to', conforme Unit 33)." },
+      { id: 26, group: "must", category: "Proibição Estrita", context: "Você aponta para uma placa de 'Proibido Estacionar' em frente a uma garagem.", q: "Look at the sign! You ___ park your car here.", type: "choice", options: ["mustn't", "don't have to", "might", "could"], answer: ["mustn't"], reason: "A sinalização indica uma proibição expressa de estacionar no local." },
+      { id: 27, group: "would", category: "Situação Hipotética", context: "Alguém imagina o que faria caso ganhasse na loteria algum dia.", q: "If I won the lottery, I ___ travel around the world.", type: "choice", options: ["would", "might", "must", "can"], answer: ["would"], maybe: ["might"], maybeReason: "Depende do contexto: na 2ª condicional (situação hipotética), 'might' também é gramaticalmente correto se você quiser dizer 'eu talvez viajasse' em vez de 'eu viajaria' ('would') — Murphy, Units 30B e 38.", reason: "Na segunda condicional (situações imaginárias com 'If + passado'), usa-se 'would'." },
+      { id: 28, group: "may", category: "Possibilidade ('Talvez')", context: "Vocês planejam ir à praia amanhã: talvez vocês vão, dependendo de o tempo melhorar.", q: "We ___ go to the beach tomorrow, depending on the weather.", type: "choice", options: ["may", "must", "can't", "have to"], answer: ["may"], reason: "Indica uma possibilidade futura ('talvez') sujeita a condições. Entre as opções, 'may' é a correta (fora das opções, 'might' ou 'could' também funcionariam)." },
+      { id: 29, group: "could", category: "Incapacidade no Passado", context: "Durante uma corrida ontem, o atleta ficou exausto e não conseguiu cruzar a linha de chegada.", q: "He was tired, so he ___ finish the race.", type: "choice", options: ["couldn't", "can't", "mustn't", "may not"], answer: ["couldn't"], reason: "A ação ocorreu no passado ('was tired'), pedindo o negativo de 'could'." },
+      { id: 30, group: "may", category: "Permissão Formal / Norma", context: "Anúncio oficial no portão de embarque de um aeroporto sobre a entrada dos passageiros.", q: "Passengers ___ board the plane only with a valid ticket.", type: "type", answer: ["may", "can", "must"], reason: "Avisos formais de embarque concedem permissão condicionada ou estabelecem regra." },
+      { id: 31, group: "can", category: "Incapacidade Natural", context: "Curiosidade biológica explicando que pinguins são aves, mas não têm capacidade de voar.", q: "Penguins are birds, but they ___ fly.", type: "choice", options: ["can't", "mustn't", "shouldn't", "might not"], answer: ["can't"], reason: "Expressa uma limitação física permanente própria da espécie." },
+      { id: 32, group: "have to", category: "Obrigação Externa (Burocracia)", context: "Exigência legal das autoridades de imigração para qualquer pessoa viajar ao exterior.", q: "You ___ have a passport to travel abroad.", type: "choice", options: ["have to", "must", "might", "shouldn't"], answer: ["have to"], maybe: ["must"], maybeReason: "Depende do contexto: 'must' também é usado para regras oficiais e avisos formais (Unit 31C). Como é uma norma externa imposta por leis de fronteira, 'have to' é a forma mais comum na fala.", reason: "É uma regra obrigatória imposta por leis internacionais de fronteira." },
+      { id: 33, group: "should", category: "Conselho Negativo", context: "Orientação alimentar para alguém que costuma comer rápido demais e sente desconforto.", q: "You ___ eat so fast; it's bad for your stomach.", type: "choice", options: ["shouldn't", "mustn't", "can", "may"], answer: ["shouldn't"], maybe: ["mustn't"], maybeReason: "Depende do contexto: 'mustn't' pode aparecer se o falante quiser dar um alerta muito enfático (como um médico proibindo). Como orientação amigável do dia a dia, 'shouldn't' é o mais adequado.", reason: "Aconselha a pessoa a evitar um hábito prejudicial à digestão." },
+      { id: 34, group: "can", category: "Impossibilidade Lógica", context: "Alguém acha que viu seu vizinho dirigindo na avenida, mas você sabe que ele nem possui carro.", q: "He doesn't even have a car, so he ___ be driving right now.", type: "choice", options: ["can't", "must", "should", "may"], answer: ["can't"], reason: "Se ele não tem carro, é logicamente impossível que esteja dirigindo." },
+      { id: 35, group: "would", category: "Pedido Muito Educado", context: "Em um escritório ou transporte público, você pede com extrema gentileza para fecharem a janela.", q: "___ you mind closing the window, please?", type: "type", answer: ["would"], reason: "A estrutura 'Would you mind + -ing' é uma das formas mais polidas de fazer um pedido." },
+      { id: 36, group: "can", category: "Habilidade Artística", context: "Você está contando sobre os talentos musicais do seu irmão, que toca violão e piano.", q: "My brother ___ play the guitar and the piano.", type: "choice", options: ["can", "must", "should", "might"], answer: ["can"], reason: "Habilidades aprendidas e praticadas no presente são expressas com 'can'." },
+      { id: 37, group: "have to", category: "Ausência de Obrigação", context: "Você já lavou toda a louça do jantar, então avisa seu colega que ele não precisa fazer isso.", q: "I already washed the dishes, so you ___ do it.", type: "choice", options: ["don't have to", "mustn't", "can't", "shouldn't"], answer: ["don't have to"], reason: "Como a tarefa já está concluída, desaparece a necessidade de realizá-la." },
+      { id: 38, group: "might", category: "Possibilidade ('Talvez')", context: "O trânsito está congestionado a caminho do trabalho e talvez vocês cheguem atrasados.", q: "Traffic is heavy. We ___ be late for the meeting.", type: "choice", options: ["might", "mustn't", "can't", "shouldn't"], answer: ["might"], reason: "Expressa uma possibilidade futura ('talvez') decorrente do trânsito intenso. Entre as opções, 'might' é a única válida ('may' ou 'could' também serviriam fora das alternativas)." },
+      { id: 39, group: "should", category: "Expectativa Lógica", context: "Uma aluna se dedicou muito aos estudos e você espera que ela passe na prova sem dificuldades.", q: "She studied a lot, so she ___ pass the test easily.", type: "choice", options: ["should", "might", "can't", "mustn't"], answer: ["should"], maybe: ["might"], maybeReason: "Depende do contexto: 'might' também faz sentido se você quiser dizer que ela 'talvez passe', com menos convicção. Mas, quando o esforço gera uma expectativa lógica alta, 'should' é o modal ideal (Unit 33C).", reason: "'Should' também indica algo que esperamos que aconteça como resultado lógico do esforço." },
+      { id: 40, group: "must", category: "Regra de Segurança", context: "Norma obrigatória dentro de um laboratório de química para proteger os olhos dos estudantes.", q: "Students ___ wear safety glasses during the experiment.", type: "type", answer: ["must", "have to"], reason: "Normas rígidas de segurança em laboratório exigem 'must' ou 'have to'." }
+    ];
+
+    const modalGroups = [
+      { id: "all", label: "Todas" },
+      { id: "can", label: "Can / Can't" },
+      { id: "could", label: "Could / Couldn't" },
+      { id: "may", label: "May" },
+      { id: "might", label: "Might" },
+      { id: "must", label: "Must / Mustn't" },
+      { id: "have to", label: "Have to / Don't have to" },
+      { id: "should", label: "Should / Shouldn't" },
+      { id: "would", label: "Would" }
+    ];
+
+    function evaluateAnswerOutcome(item, rawAnswer) {
+      const normalized = String(rawAnswer || "").trim().toLowerCase();
+      if (item.answer.map(a => a.toLowerCase()).includes(normalized)) return "correct";
+      if (Array.isArray(item.maybe) && item.maybe.map(a => a.toLowerCase()).includes(normalized)) return "maybe";
+      return "wrong";
+    }
+
+    // Web Audio API synthesized chimes
+    let audioCtx = null;
+    function playAnswerSound(outcome) {
+      if (!soundEnabled) return;
+      const mode = typeof outcome === "boolean" ? (outcome ? "correct" : "wrong") : outcome;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+
+        const notes = mode === "correct"
+          ? [{ f: 523.25, d: 0.095, g: 0.24 }, { f: 659.25, d: 0.095, g: 0.26 }, { f: 783.99, d: 0.17, g: 0.28 }]
+          : mode === "maybe"
+            ? [{ f: 440.00, d: 0.12, g: 0.25 }, { f: 554.37, d: 0.19, g: 0.27 }]
+            : [{ f: 369.99, d: 0.16, g: 0.36 }, { f: 277.18, d: 0.26, g: 0.38 }];
+
+        let start = audioCtx.currentTime;
+        notes.forEach(n => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = mode === "wrong" ? "triangle" : "sine";
+          osc.frequency.setValueAtTime(n.f, start);
+          gain.gain.setValueAtTime(0.001, start);
+          gain.gain.linearRampToValueAtTime(n.g, start + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + n.d);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(start);
+          osc.stop(start + n.d);
+          start += n.d * 0.92;
+        });
+      } catch (_) {}
+    }
+
+    function triggerAnswerFlash(outcome) {
+      const overlay = document.getElementById("answerFlashOverlay");
+      if (!overlay) return;
+      const mode = typeof outcome === "boolean" ? (outcome ? "correct" : "wrong") : outcome;
+      clearTimeout(overlay._t);
+      overlay.classList.remove("flash-correct", "flash-maybe", "flash-wrong");
+      void overlay.offsetWidth;
+      overlay.classList.add(mode === "correct" ? "flash-correct" : mode === "maybe" ? "flash-maybe" : "flash-wrong");
+      overlay._t = setTimeout(() => {
+        overlay.classList.remove("flash-correct", "flash-maybe", "flash-wrong");
+      }, 360);
+    }
+
+    let gameMode = "solo";
+    let difficulty = "easy"; // "easy" = context + category, "normal" = context only
+    let players = [];
+    let currentTurnIndex = 0;
+    let selectedModalGroups = new Set(["all"]);
+    let activeQuestions = [];
+    let answeredCount = 0;
+    let correctCount = 0;
+    let maybeCount = 0;
+    let incorrectCount = 0;
+    let currentStreak = 0;
+    let bestStreak = 0;
+    let answeredOutcomes = new Map(); // questionId -> "correct" | "maybe" | "wrong"
+    let soundEnabled = true;
+
+    const setupScreen = document.getElementById("setupScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const resultsScreen = document.getElementById("resultsScreen");
+    const onlineRoomScreen = document.getElementById("onlineRoomScreen");
+
+    const tabSolo = document.getElementById("tabSolo");
+    const tabGroup = document.getElementById("tabGroup");
+    const soloInputBox = document.getElementById("soloInputBox");
+    const groupInputBox = document.getElementById("groupInputBox");
+    const soloNameInput = document.getElementById("soloNameInput");
+    const openQuickGuideBtn = document.getElementById("openQuickGuideBtn");
+    const quickGuideModal = document.getElementById("quickGuideModal");
+    const closeQuickGuideBtn = document.getElementById("closeQuickGuideBtn");
+    const onlineCreateTab = document.getElementById("onlineCreateTab");
+    const onlineJoinTab = document.getElementById("onlineJoinTab");
+    const onlineNameInput = document.getElementById("onlineNameInput");
+    const onlinePinInput = document.getElementById("onlinePinInput");
+    const onlineSetupError = document.getElementById("onlineSetupError");
+    const quizConfigSections = document.getElementById("quizConfigSections");
+    const modalFilterGrid = document.getElementById("modalFilterGrid");
+    const filterCountInfo = document.getElementById("filterCountInfo");
+    const diffEasyBtn = document.getElementById("diffEasyBtn");
+    const diffNormalBtn = document.getElementById("diffNormalBtn");
+    const startQuizBtn = document.getElementById("startQuizBtn");
+
+    const onlineTopPin = document.getElementById("onlineTopPin");
+    const onlineTopCounter = document.getElementById("onlineTopCounter");
+    const onlineSoundBtn = document.getElementById("onlineSoundBtn");
+    const onlineThemeBtn = document.getElementById("onlineThemeBtn");
+    const onlineLeaveTopBtn = document.getElementById("onlineLeaveTopBtn");
+    const onlineProgressSection = document.getElementById("onlineProgressSection");
+    const onlineQuestionLabel = document.getElementById("onlineQuestionLabel");
+    const onlineAnsweredLabel = document.getElementById("onlineAnsweredLabel");
+    const onlineProgressFill = document.getElementById("onlineProgressFill");
+    const onlineRoomBody = document.getElementById("onlineRoomBody");
+    const onlineToast = document.getElementById("onlineToast");
+
+    let onlineSubMode = "create"; // "create" | "join"
+
+    const streakPill = document.getElementById("streakPill");
+    const progressCounter = document.getElementById("progressCounter");
+    const progressLabels = document.getElementById("progressLabels");
+    const remainingLabel = document.getElementById("remainingLabel");
+    const progressPct = document.getElementById("progressPct");
+    const progressFill = document.getElementById("progressFill");
+    const scoreboardBar = document.getElementById("scoreboardBar");
+    const gearBtn = document.getElementById("gearBtn");
+    const settingsDrawer = document.getElementById("settingsDrawer");
+    const soundToggleBtn = document.getElementById("soundToggleBtn");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const newQuizBtn = document.getElementById("newQuizBtn");
+    const footerResultsBtn = document.getElementById("footerResultsBtn");
+    const footerRestartBtn = document.getElementById("footerRestartBtn");
+    const questionsList = document.getElementById("questionsList");
+
+    const resultsSubtitle = document.getElementById("resultsSubtitle");
+    const resultsTotalScore = document.getElementById("resultsTotalScore");
+    const resultsAccuracyBadge = document.getElementById("resultsAccuracyBadge");
+    const resultsBestStreakBadge = document.getElementById("resultsBestStreakBadge");
+    const resultsStatsGrid = document.getElementById("resultsStatsGrid");
+    const resultsCorrectCount = document.getElementById("resultsCorrectCount");
+    const resultsMaybeCard = document.getElementById("resultsMaybeCard");
+    const resultsMaybeCount = document.getElementById("resultsMaybeCount");
+    const resultsWrongCount = document.getElementById("resultsWrongCount");
+    const resultsModalXraySection = document.getElementById("resultsModalXraySection");
+    const resultsModalXrayList = document.getElementById("resultsModalXrayList");
+    const resultsLeaderboardSection = document.getElementById("resultsLeaderboardSection");
+    const resultsLeaderboardList = document.getElementById("resultsLeaderboardList");
+    const retryMistakesBtn = document.getElementById("retryMistakesBtn");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const reviewAnswersBtn = document.getElementById("reviewAnswersBtn");
+    const resultsNewQuizBtn = document.getElementById("resultsNewQuizBtn");
+
+    openQuickGuideBtn.addEventListener("click", () => {
+      quickGuideModal.classList.remove("hidden");
+    });
+    closeQuickGuideBtn.addEventListener("click", () => {
+      quickGuideModal.classList.add("hidden");
+    });
+    quickGuideModal.addEventListener("click", e => {
+      if (e.target.id === "quickGuideModal") {
+        quickGuideModal.classList.add("hidden");
+      }
+    });
+
+    function toggleTheme() {
+      document.body.classList.toggle("light-mode");
+    }
+
+    document.getElementById("quickThemeBtn").addEventListener("click", toggleTheme);
+    document.getElementById("drawerThemeBtn").addEventListener("click", toggleTheme);
+    document.getElementById("resultsThemeBtn").addEventListener("click", toggleTheme);
+    onlineThemeBtn.addEventListener("click", toggleTheme);
+
+    function syncSoundButtons() {
+      const icon = soundEnabled ? "🔊" : "🔇";
+      soundToggleBtn.textContent = icon;
+      soundToggleBtn.classList.toggle("active", soundEnabled);
+      onlineSoundBtn.textContent = icon;
+      onlineSoundBtn.classList.toggle("active", soundEnabled);
+    }
+
+    soundToggleBtn.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      syncSoundButtons();
+    });
+
+    onlineSoundBtn.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      syncSoundButtons();
+    });
+
+    function showOnlineError(msg) {
+      if (!msg) {
+        onlineSetupError.classList.add("hidden");
+        onlineSetupError.textContent = "";
+      } else {
+        onlineSetupError.textContent = msg;
+        onlineSetupError.classList.remove("hidden");
+      }
+    }
+
+    function showToast(msg) {
+      onlineToast.textContent = msg;
+      onlineToast.classList.remove("hidden");
+      clearTimeout(onlineToast._t);
+      onlineToast._t = setTimeout(() => onlineToast.classList.add("hidden"), 2500);
+    }
+
+    function updateSetupUI() {
+      showOnlineError("");
+      if (gameMode === "solo") {
+        tabSolo.classList.add("active");
+        tabGroup.classList.remove("active");
+        soloInputBox.classList.remove("hidden");
+        groupInputBox.classList.add("hidden");
+        quizConfigSections.classList.remove("hidden");
+        startQuizBtn.textContent = "▶ Iniciar Exercícios";
+      } else {
+        tabGroup.classList.add("active");
+        tabSolo.classList.remove("active");
+        groupInputBox.classList.remove("hidden");
+        soloInputBox.classList.add("hidden");
+        if (onlineSubMode === "create") {
+          onlineCreateTab.classList.add("active");
+          onlineJoinTab.classList.remove("active");
+          onlinePinInput.classList.add("hidden");
+          quizConfigSections.classList.remove("hidden");
+          startQuizBtn.textContent = "👥 Criar Sala Online";
+        } else {
+          onlineJoinTab.classList.add("active");
+          onlineCreateTab.classList.remove("active");
+          onlinePinInput.classList.remove("hidden");
+          quizConfigSections.classList.add("hidden");
+          startQuizBtn.textContent = "🔑 Entrar na Sala";
+        }
+      }
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function prepareRandomizedQuestions(list) {
+      return shuffleArray(list.map(q => ({
+        ...q,
+        options: q.options ? shuffleArray([...q.options]) : undefined
+      })));
+    }
+
+    tabSolo.addEventListener("click", () => {
+      gameMode = "solo";
+      updateSetupUI();
+    });
+
+    tabGroup.addEventListener("click", () => {
+      gameMode = "group";
+      updateSetupUI();
+    });
+
+    onlineCreateTab.addEventListener("click", () => {
+      onlineSubMode = "create";
+      updateSetupUI();
+    });
+
+    onlineJoinTab.addEventListener("click", () => {
+      onlineSubMode = "join";
+      updateSetupUI();
+    });
+
+    onlinePinInput.addEventListener("input", () => {
+      onlinePinInput.value = onlinePinInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+      showOnlineError("");
+    });
+
+    diffEasyBtn.addEventListener("click", () => {
+      difficulty = "easy";
+      diffEasyBtn.classList.add("selected");
+      diffNormalBtn.classList.remove("selected");
+    });
+
+    diffNormalBtn.addEventListener("click", () => {
+      difficulty = "normal";
+      diffNormalBtn.classList.add("selected");
+      diffEasyBtn.classList.remove("selected");
+    });
+
+    function renderModalFilters() {
+      modalFilterGrid.innerHTML = "";
+      modalGroups.forEach(grp => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "modal-chip-btn" + (selectedModalGroups.has(grp.id) ? " selected" : "");
+        btn.textContent = grp.label;
+        btn.onclick = () => toggleModalFilter(grp.id);
+        modalFilterGrid.appendChild(btn);
+      });
+      const count = getFilteredQuestions().length;
+      filterCountInfo.textContent = `${count} exercício${count !== 1 ? "s" : ""} selecionado${count !== 1 ? "s" : ""}`;
+    }
+
+    function toggleModalFilter(id) {
+      if (id === "all") {
+        selectedModalGroups.clear();
+        selectedModalGroups.add("all");
+      } else {
+        selectedModalGroups.delete("all");
+        if (selectedModalGroups.has(id)) {
+          selectedModalGroups.delete(id);
+          if (selectedModalGroups.size === 0) selectedModalGroups.add("all");
+        } else {
+          selectedModalGroups.add(id);
+        }
+      }
+      renderModalFilters();
+    }
+
+    function getFilteredQuestions() {
+      if (selectedModalGroups.has("all")) return [...allQuestions];
+      return allQuestions.filter(q => selectedModalGroups.has(q.group));
+    }
+
+    renderModalFilters();
+
+    function updateStreakPill() {
+      if (currentStreak >= 2) {
+        streakPill.textContent = `🔥 ${currentStreak}x`;
+        streakPill.classList.remove("hidden");
+      } else {
+        streakPill.classList.add("hidden");
+      }
+    }
+
+    function launchRound(customQuestionList) {
+      currentTurnIndex = 0;
+      answeredCount = 0;
+      correctCount = 0;
+      maybeCount = 0;
+      incorrectCount = 0;
+      currentStreak = 0;
+      bestStreak = 0;
+      answeredOutcomes = new Map();
+      players.forEach(p => p.score = 0);
+      const sourceList = Array.isArray(customQuestionList) && customQuestionList.length > 0
+        ? customQuestionList
+        : getFilteredQuestions();
+      activeQuestions = prepareRandomizedQuestions(sourceList);
+
+      setupScreen.classList.add("hidden");
+      resultsScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+      settingsDrawer.classList.add("hidden");
+      footerResultsBtn.classList.add("hidden");
+
+      updateStreakPill();
+      renderScoreboard();
+      renderAllQuestions();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function retryMistakesSolo() {
+      if (gameMode !== "solo") return;
+      const reviewList = activeQuestions.filter(q => {
+        const out = answeredOutcomes.get(q.id);
+        return out === "wrong" || out === "maybe";
+      });
+      if (reviewList.length === 0) return;
+      launchRound(reviewList);
+    }
+
+    startQuizBtn.addEventListener("click", () => {
+      if (gameMode === "solo") {
+        const soloName = soloNameInput.value.trim() || "Jogador";
+        players = [{ name: soloName, score: 0 }];
+        launchRound();
+      } else if (onlineSubMode === "create") {
+        createOnlineRoom();
+      } else {
+        joinOnlineRoom();
+      }
+    });
+
+    function renderScoreboard() {
+      scoreboardBar.innerHTML = "";
+      players.forEach((p, idx) => {
+        const card = document.createElement("div");
+        const isTurn = players.length > 1 && idx === currentTurnIndex;
+        card.className = "score-card" + (isTurn ? " active-turn" : "");
+        const turnPrefix = isTurn ? "🎯 Vez: " : "";
+        card.innerHTML = `<span>${turnPrefix}<strong>${p.name}</strong>: ${p.score} XP</span>`;
+        if (players.length > 1) {
+          const rmBtn = document.createElement("button");
+          rmBtn.type = "button";
+          rmBtn.className = "remove-player-mini";
+          rmBtn.textContent = "×";
+          rmBtn.title = "Remover participante";
+          rmBtn.onclick = () => {
+            players.splice(idx, 1);
+            if (currentTurnIndex >= players.length) currentTurnIndex = 0;
+            renderScoreboard();
+          };
+          card.appendChild(rmBtn);
+        }
+        scoreboardBar.appendChild(card);
+      });
+    }
+
+    function updateProgress() {
+      const total = activeQuestions.length;
+      const remaining = Math.max(0, total - answeredCount);
+      const pct = total > 0 ? Math.round((answeredCount / total) * 100) : 0;
+      const done = total > 0 && remaining === 0;
+
+      progressCounter.textContent = `${answeredCount} / ${total}`;
+      remainingLabel.textContent = done
+        ? "Todas concluídas!"
+        : remaining === 1
+          ? `Resta 1 de ${total}`
+          : `Restam ${remaining} de ${total}`;
+      progressPct.textContent = `${pct}%`;
+      progressFill.style.width = `${pct}%`;
+      progressFill.classList.toggle("done", done);
+      progressLabels.classList.toggle("done", done);
+    }
+
+    function renderAllQuestions() {
+      questionsList.innerHTML = "";
+      const showCategory = difficulty === "easy";
+
+      activeQuestions.forEach((item, index) => {
+        const card = document.createElement("article");
+        card.className = "question-card";
+
+        const metaRow = document.createElement("div");
+        metaRow.className = "q-meta-row";
+        metaRow.innerHTML = `
+          <span class="q-number">Questão ${index + 1} de ${activeQuestions.length}</span>
+          ${showCategory ? `<span class="category-tag">${item.category}</span>` : ""}
+        `;
+        card.appendChild(metaRow);
+
+        const ctxBox = document.createElement("div");
+        ctxBox.className = "context-box";
+        ctxBox.innerHTML = `<strong>Situação:</strong> ${item.context}`;
+        card.appendChild(ctxBox);
+
+        const sentence = document.createElement("div");
+        sentence.className = "question-sentence";
+        sentence.textContent = item.q;
+        card.appendChild(sentence);
+
+        const feedbackBox = document.createElement("div");
+        feedbackBox.className = "feedback-box hidden";
+
+        if (item.type === "choice") {
+          const grid = document.createElement("div");
+          grid.className = "options-grid";
+          item.options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "option-btn";
+            btn.textContent = opt;
+            btn.onclick = () => {
+              const allBtns = grid.querySelectorAll(".option-btn");
+              allBtns.forEach(b => b.disabled = true);
+              const outcome = evaluateAnswerOutcome(item, opt);
+              if (outcome === "correct") {
+                btn.classList.add("correct");
+                registerAnswer("correct", opt, item, feedbackBox);
+              } else if (outcome === "maybe") {
+                btn.classList.add("maybe");
+                allBtns.forEach(b => {
+                  if (item.answer.map(a => a.toLowerCase()).includes(b.textContent.toLowerCase())) {
+                    b.classList.add("correct");
+                  }
+                });
+                registerAnswer("maybe", opt, item, feedbackBox);
+              } else {
+                btn.classList.add("wrong");
+                allBtns.forEach(b => {
+                  if (item.answer.map(a => a.toLowerCase()).includes(b.textContent.toLowerCase())) {
+                    b.classList.add("correct");
+                  }
+                });
+                registerAnswer("wrong", opt, item, feedbackBox);
+              }
+            };
+            grid.appendChild(btn);
+          });
+          card.appendChild(grid);
+        } else {
+          const typingRow = document.createElement("div");
+          typingRow.className = "typing-row";
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "Digite o verbo modal...";
+          input.autocomplete = "off";
+          const checkBtn = document.createElement("button");
+          checkBtn.type = "button";
+          checkBtn.className = "btn-check";
+          checkBtn.textContent = "Verificar";
+          const submitTyping = () => {
+            const val = input.value.trim();
+            if (!val) return;
+            input.disabled = true;
+            checkBtn.disabled = true;
+            const outcome = evaluateAnswerOutcome(item, val);
+            registerAnswer(outcome, val, item, feedbackBox);
+          };
+          checkBtn.onclick = submitTyping;
+          input.addEventListener("keypress", e => {
+            if (e.key === "Enter") submitTyping();
+          });
+          typingRow.appendChild(input);
+          typingRow.appendChild(checkBtn);
+          card.appendChild(typingRow);
+        }
+
+        card.appendChild(feedbackBox);
+        questionsList.appendChild(card);
+      });
+    }
+
+    function registerAnswer(outcome, userAnswer, item, feedbackBox) {
+      answeredCount++;
+      answeredOutcomes.set(item.id, outcome);
+      const isCorrect = outcome === "correct";
+      const isMaybe = outcome === "maybe";
+      if (isCorrect) {
+        correctCount++;
+        currentStreak++;
+        if (currentStreak > bestStreak) bestStreak = currentStreak;
+      } else if (isMaybe) {
+        maybeCount++;
+        // Preserves currentStreak
+      } else {
+        incorrectCount++;
+        currentStreak = 0;
+      }
+
+      playAnswerSound(outcome);
+      triggerAnswerFlash(outcome);
+
+      const xpEarned = isCorrect ? 100 : isMaybe ? 50 : 0;
+
+      const activePlayer = players[currentTurnIndex];
+      if (xpEarned > 0 && activePlayer) activePlayer.score += xpEarned;
+      if (players.length > 1) {
+        currentTurnIndex = (currentTurnIndex + 1) % players.length;
+      }
+
+      updateStreakPill();
+      renderScoreboard();
+      updateProgress();
+
+      const primaryCorrectKey = item.answer[0].toLowerCase();
+      const correctInfo = modalDefinitions[primaryCorrectKey] || {
+        name: item.answer[0],
+        role: item.category,
+        structure: "Sujeito + modal + verbo principal",
+        contrast: ""
+      };
+      const userModalInfo = modalDefinitions[userAnswer.trim().toLowerCase()];
+
+      const xpTag = xpEarned > 0 ? ` • +${xpEarned} XP` : "";
+      feedbackBox.classList.remove("hidden");
+      if (isCorrect) {
+        feedbackBox.classList.add("correct");
+        feedbackBox.innerHTML = `
+          <span class="feedback-title">✅ Resposta Correta!${xpTag} (${item.answer.join(" / ")})</span>
+          <ul class="feedback-detail-list">
+            <li><strong>Classificação da frase:</strong> ${item.category}.</li>
+            <li><strong>Por que está certo:</strong> ${item.reason}</li>
+            <li><strong>Função gramatical de "${correctInfo.name}":</strong> ${correctInfo.role}.</li>
+            <li><strong>Estrutura e uso:</strong> ${correctInfo.structure}. ${correctInfo.contrast}</li>
+          </ul>
+        `;
+      } else if (isMaybe) {
+        feedbackBox.classList.add("maybe");
+        feedbackBox.innerHTML = `
+          <span class="feedback-title">🤔 Talvez! Depende do contexto${xpTag} (${userAnswer}) — Ideal: ${item.answer.join(" / ")}</span>
+          <ul class="feedback-detail-list">
+            <li><strong>Classificação da frase:</strong> ${item.category}.</li>
+            ${item.maybeReason ? `<li><strong>Por que "${userAnswer}" pode estar certo:</strong> ${item.maybeReason}</li>` : ""}
+            <li><strong>Melhor opção para esta situação (${item.answer.join(" / ")}):</strong> ${item.reason}</li>
+            <li><strong>Regra de "${correctInfo.name}":</strong> ${correctInfo.role}. ${correctInfo.contrast}</li>
+          </ul>
+        `;
+      } else {
+        feedbackBox.classList.add("wrong");
+        const userErrorDetail = userModalInfo
+          ? `<li><strong>Por que "${userAnswer}" não se encaixa:</strong> "${userModalInfo.name}" expressa <em>${userModalInfo.role.toLowerCase()}</em>, o que muda o sentido exigido por esta situação.</li>`
+          : `<li><strong>Sobre sua resposta ("${userAnswer}"):</strong> Esta palavra não corresponde a um verbo modal válido ou adequado para completar a estrutura desta frase.</li>`;
+        feedbackBox.innerHTML = `
+          <span class="feedback-title">❌ Resposta Incorreta — Gabarito: ${item.answer.join(" / ")}</span>
+          <ul class="feedback-detail-list">
+            <li><strong>Classificação da frase:</strong> ${item.category}.</li>
+            <li><strong>Explicação do gabarito:</strong> ${item.reason}</li>
+            ${userErrorDetail}
+            <li><strong>Regra de "${correctInfo.name}":</strong> ${correctInfo.role}. ${correctInfo.contrast}</li>
+          </ul>
+        `;
+      }
+
+      if (answeredCount >= activeQuestions.length) {
+        footerResultsBtn.classList.remove("hidden");
+        setTimeout(showResultsScreen, 350);
+      }
+    }
+
+    const resultsNewHighScoreBadge = document.getElementById("resultsNewHighScoreBadge");
+    const resultsBestScoreNote = document.getElementById("resultsBestScoreNote");
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    let confettiAnimId = null;
+
+    function launchConfetti() {
+      if (!confettiCanvas) return;
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+      const ctx = confettiCanvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      confettiCanvas.width = w * dpr;
+      confettiCanvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      confettiCanvas.classList.remove("hidden");
+
+      const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#06b6d4", "#ef4444"];
+      const particles = Array.from({ length: 85 }, () => {
+        const size = Math.random() * 8 + 7;
+        return {
+          x: Math.random() * w,
+          y: -20 - Math.random() * h * 0.25,
+          vx: (Math.random() - 0.5) * 4.5,
+          vy: Math.random() * 3.5 + 2.2,
+          g: Math.random() * 0.14 + 0.16,
+          size,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: Math.random() * Math.PI * 2,
+          vrot: (Math.random() - 0.5) * 0.2,
+          sway: Math.random() * 0.06 + 0.02,
+          phase: Math.random() * Math.PI * 2,
+          circle: Math.random() < 0.28
+        };
+      });
+
+      const start = performance.now();
+      const duration = 4200;
+
+      function frame(now) {
+        const elapsed = now - start;
+        if (elapsed >= duration) {
+          ctx.clearRect(0, 0, w, h);
+          confettiCanvas.classList.add("hidden");
+          confettiAnimId = null;
+          return;
+        }
+        const alpha = elapsed > duration * 0.7
+          ? Math.max(0, 1 - (elapsed - duration * 0.7) / (duration * 0.3))
+          : 1;
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalAlpha = alpha;
+
+        for (const p of particles) {
+          p.vy += p.g;
+          p.x += p.vx + Math.sin(elapsed * 0.005 * p.sway * 50 + p.phase) * 1.1;
+          p.y += p.vy;
+          p.rot += p.vrot;
+          if (p.y > h + 30) continue;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          if (p.circle) {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size * 0.45, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillRect(-p.size / 2, -p.size * 0.35, p.size, p.size * 0.7);
+          }
+          ctx.restore();
+        }
+        ctx.globalAlpha = 1;
+        confettiAnimId = requestAnimationFrame(frame);
+      }
+
+      confettiAnimId = requestAnimationFrame(frame);
+    }
+
+    function showResultsScreen() {
+      const total = activeQuestions.length || 1;
+      const totalScore = players.reduce((acc, p) => acc + p.score, 0);
+      const pct = Math.round((correctCount / total) * 100);
+
+      let prevHigh = 0;
+      try {
+        prevHigh = parseInt(localStorage.getItem("modals_quiz_high_score") || "0", 10) || 0;
+      } catch (_) {}
+      const isNewHigh = totalScore > 0 && totalScore > prevHigh;
+      if (isNewHigh) {
+        try { localStorage.setItem("modals_quiz_high_score", String(totalScore)); } catch (_) {}
+      }
+      const bestScore = isNewHigh ? totalScore : prevHigh;
+
+      resultsNewHighScoreBadge.classList.toggle("hidden", !isNewHigh);
+      if (!isNewHigh && bestScore > 0) {
+        resultsBestScoreNote.textContent = `Recorde atual: ${bestScore} XP`;
+        resultsBestScoreNote.classList.remove("hidden");
+      } else {
+        resultsBestScoreNote.classList.add("hidden");
+      }
+
+      resultsSubtitle.textContent =
+        pct >= 90 ? "Excelente desempenho! Domínio impressionante dos modais." :
+        pct >= 70 ? "Muito bem! Você acertou a maior parte das questões." :
+        pct >= 50 ? "Bom progresso! Vale revisar os pontos em que houve dúvida." :
+        "Continue praticando! Revise as explicações para fixar as regras.";
+
+      resultsTotalScore.textContent = `${totalScore} XP`;
+      resultsAccuracyBadge.textContent = `${correctCount}/${activeQuestions.length} acertos • ${pct}%`;
+      if (bestStreak >= 2) {
+        resultsBestStreakBadge.textContent = `🔥 Melhor sequência: ${bestStreak}x`;
+        resultsBestStreakBadge.classList.remove("hidden");
+      } else {
+        resultsBestStreakBadge.classList.add("hidden");
+      }
+
+      resultsCorrectCount.textContent = correctCount;
+      resultsMaybeCount.textContent = maybeCount;
+      resultsWrongCount.textContent = incorrectCount;
+      resultsMaybeCard.classList.toggle("hidden", maybeCount === 0);
+      resultsStatsGrid.classList.toggle("three-cols", maybeCount > 0);
+
+      // Raio-X por Verbo Modal (ordenado do menor acerto para o maior)
+      const groupMap = new Map();
+      activeQuestions.forEach(q => {
+        const out = answeredOutcomes.get(q.id);
+        if (!out) return;
+        const entry = groupMap.get(q.group) || { group: q.group, total: 0, correct: 0, maybe: 0 };
+        entry.total++;
+        if (out === "correct") entry.correct++;
+        else if (out === "maybe") entry.maybe++;
+        groupMap.set(q.group, entry);
+      });
+      const statsArr = Array.from(groupMap.values()).sort((a, b) => {
+        const pctA = a.total > 0 ? a.correct / a.total : 0;
+        const pctB = b.total > 0 ? b.correct / b.total : 0;
+        return pctA - pctB || b.total - a.total;
+      });
+      if (statsArr.length > 0) {
+        resultsModalXraySection.classList.remove("hidden");
+        resultsModalXrayList.innerHTML = statsArr.map(s => {
+          const gPct = Math.round((s.correct / s.total) * 100);
+          const barColor = gPct >= 75 ? "var(--success-border)" : gPct >= 45 ? "var(--maybe-border)" : "var(--error-border)";
+          const labelObj = modalGroups.find(m => m.id === s.group);
+          const label = labelObj ? labelObj.label : s.group;
+          const maybeNote = s.maybe > 0 ? ` • ${s.maybe} talvez` : "";
+          return `
+            <div class="xray-row">
+              <div class="xray-row-head">
+                <span>${escapeHtml(label)}</span>
+                <span style="color:var(--text-muted); font-size:0.8rem;">${s.correct}/${s.total} (${gPct}%)${maybeNote}</span>
+              </div>
+              <div class="xray-bar-track">
+                <div class="xray-bar-fill" style="width:${gPct}%; background:${barColor};"></div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } else {
+        resultsModalXraySection.classList.add("hidden");
+      }
+
+      // Solo-only "Refazer só as que errei / Talvez"
+      const reviewableCount = Array.from(answeredOutcomes.values()).filter(o => o === "wrong" || o === "maybe").length;
+      if (gameMode === "solo" && reviewableCount > 0) {
+        retryMistakesBtn.textContent = `🎯 Refazer só as que errei / Talvez (${reviewableCount})`;
+        retryMistakesBtn.classList.remove("hidden");
+      } else {
+        retryMistakesBtn.classList.add("hidden");
+      }
+
+      if (players.length > 1) {
+        resultsLeaderboardSection.classList.remove("hidden");
+        resultsLeaderboardList.innerHTML = "";
+        const ranked = [...players].sort((a, b) => b.score - a.score);
+        const topScore = ranked[0]?.score || 0;
+        ranked.forEach((p, idx) => {
+          const item = document.createElement("div");
+          const isLeader = p.score === topScore && topScore > 0;
+          item.className = "leaderboard-item" + (isLeader ? " leader" : "");
+          item.innerHTML = `<span>#${idx + 1} ${p.name}</span><span>${p.score} pt${p.score !== 1 ? "s" : ""}</span>`;
+          resultsLeaderboardList.appendChild(item);
+        });
+      } else {
+        resultsLeaderboardSection.classList.add("hidden");
+      }
+
+      quizScreen.classList.add("hidden");
+      settingsDrawer.classList.add("hidden");
+      resultsScreen.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (isNewHigh) launchConfetti();
+    }
+
+    gearBtn.addEventListener("click", () => settingsDrawer.classList.toggle("hidden"));
+    shuffleBtn.addEventListener("click", () => launchRound());
+    retryMistakesBtn.addEventListener("click", retryMistakesSolo);
+    playAgainBtn.addEventListener("click", () => launchRound());
+    footerResultsBtn.addEventListener("click", showResultsScreen);
+
+    reviewAnswersBtn.addEventListener("click", () => {
+      resultsScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    function resetToHome() {
+      quizScreen.classList.add("hidden");
+      resultsScreen.classList.add("hidden");
+      onlineRoomScreen.classList.add("hidden");
+      setupScreen.classList.remove("hidden");
+      settingsDrawer.classList.add("hidden");
+      updateSetupUI();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    newQuizBtn.addEventListener("click", resetToHome);
+    footerRestartBtn.addEventListener("click", resetToHome);
+    resultsNewQuizBtn.addEventListener("click", resetToHome);
+
+    // =========================================================================
+    // ONLINE KAHOOT-STYLE MULTIPLAYER (PeerJS WebRTC - Zero Login Required)
+    // =========================================================================
+    const PEER_PREFIX = "modalsquiz-v2-";
+    const ONLINE_QUESTION_SECONDS = 25;
+    let peer = null;
+    let hostConnections = new Map(); // guestPeerId -> DataConnection (Host only)
+    let guestConnection = null;      // DataConnection to Host (Guest only)
+    let isOnlineHost = false;
+    let myPeerId = "";
+    let onlineRoomState = null;
+    let onlineTimerInterval = null;
+    let onlineTimerQuestionIdx = -1;
+    let onlineSecondsLeft = ONLINE_QUESTION_SECONDS;
+    let lastOnlineRevealedIdx = -1;
+
+    function stopOnlineTimer() {
+      if (onlineTimerInterval) {
+        clearInterval(onlineTimerInterval);
+        onlineTimerInterval = null;
+      }
+      onlineTimerQuestionIdx = -1;
+    }
+
+    function generateRoomPin() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let out = "";
+      for (let i = 0; i < 6; i++) {
+        out += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return out;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function destroyPeerSession() {
+      stopOnlineTimer();
+      lastOnlineRevealedIdx = -1;
+      try {
+        hostConnections.forEach(c => c.close());
+      } catch (_) {}
+      hostConnections.clear();
+      try {
+        if (guestConnection) guestConnection.close();
+      } catch (_) {}
+      guestConnection = null;
+      try {
+        if (peer) peer.destroy();
+      } catch (_) {}
+      peer = null;
+      isOnlineHost = false;
+      myPeerId = "";
+      onlineRoomState = null;
+    }
+
+    function leaveOnlineRoom() {
+      destroyPeerSession();
+      startQuizBtn.disabled = false;
+      resetToHome();
+    }
+
+    onlineLeaveTopBtn.addEventListener("click", leaveOnlineRoom);
+
+    function broadcastRoomState() {
+      if (!isOnlineHost || !onlineRoomState) return;
+      onlineRoomState.players.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+      const msg = { type: "STATE", state: onlineRoomState };
+      hostConnections.forEach(conn => {
+        if (conn.open) {
+          try { conn.send(msg); } catch (_) {}
+        }
+      });
+      renderOnlineRoom();
+    }
+
+    function createOnlineRoom() {
+      if (typeof Peer === "undefined") {
+        showOnlineError("Sem conexão com o serviço online (PeerJS). Verifique sua internet e recarregue a página.");
+        return;
+      }
+      const filtered = prepareRandomizedQuestions(getFilteredQuestions());
+      if (filtered.length === 0) {
+        showOnlineError("Selecione ao menos um verbo modal.");
+        return;
+      }
+      const hostName = onlineNameInput.value.trim().slice(0, 32) || "Anfitrião";
+      const pin = generateRoomPin();
+
+      showOnlineError("");
+      startQuizBtn.disabled = true;
+      startQuizBtn.textContent = "⏳ Criando sala...";
+
+      destroyPeerSession();
+      isOnlineHost = true;
+
+      peer = new Peer(PEER_PREFIX + pin);
+
+      peer.on("open", id => {
+        myPeerId = id;
+        onlineRoomState = {
+          roomCode: pin,
+          hostId: id,
+          hostName,
+          phase: "LOBBY",
+          difficulty,
+          questions: filtered,
+          currentQuestionIndex: 0,
+          players: [
+            {
+              id,
+              name: hostName,
+              score: 0,
+              correctCount: 0,
+              incorrectCount: 0,
+              lastAnsweredIndex: -1,
+              lastAnswer: "",
+              lastAnswerCorrect: false,
+              streak: 0,
+              bestStreak: 0,
+              lastPointsAwarded: 0
+            }
+          ]
+        };
+        startQuizBtn.disabled = false;
+        setupScreen.classList.add("hidden");
+        onlineRoomScreen.classList.remove("hidden");
+        renderOnlineRoom();
+      });
+
+      peer.on("connection", conn => {
+        conn.on("data", data => {
+          if (!data || !onlineRoomState) return;
+          if (data.type === "JOIN") {
+            if (onlineRoomState.phase !== "LOBBY") {
+              conn.send({ type: "ERROR", message: "Esta partida já foi iniciada." });
+              setTimeout(() => conn.close(), 300);
+              return;
+            }
+            const cleanName = String(data.name || "Jogador").trim().slice(0, 32) || "Jogador";
+            hostConnections.set(conn.peer, conn);
+            const existing = onlineRoomState.players.find(p => p.id === conn.peer);
+            if (!existing) {
+              onlineRoomState.players.push({
+                id: conn.peer,
+                name: cleanName,
+                score: 0,
+                correctCount: 0,
+                incorrectCount: 0,
+                lastAnsweredIndex: -1,
+                lastAnswer: "",
+                lastAnswerCorrect: false,
+                streak: 0,
+                bestStreak: 0,
+                lastPointsAwarded: 0
+              });
+            }
+            broadcastRoomState();
+          } else if (data.type === "ANSWER") {
+            handleOnlineAnswer(conn.peer, data.questionIndex, data.answer, data.remainingSeconds);
+          }
+        });
+
+        conn.on("close", () => {
+          hostConnections.delete(conn.peer);
+          if (onlineRoomState && onlineRoomState.phase === "LOBBY") {
+            onlineRoomState.players = onlineRoomState.players.filter(p => p.id !== conn.peer);
+            broadcastRoomState();
+          }
+        });
+      });
+
+      peer.on("error", err => {
+        startQuizBtn.disabled = false;
+        updateSetupUI();
+        showOnlineError("Erro ao criar sala online: " + (err.message || err.type));
+      });
+    }
+
+    function joinOnlineRoom() {
+      if (typeof Peer === "undefined") {
+        showOnlineError("Sem conexão com o serviço online (PeerJS). Verifique sua internet e recarregue a página.");
+        return;
+      }
+      const pin = onlinePinInput.value.trim().toUpperCase();
+      if (pin.length < 4) {
+        showOnlineError("Digite um PIN válido de 6 caracteres.");
+        return;
+      }
+      const playerName = onlineNameInput.value.trim().slice(0, 32) || "Jogador";
+
+      showOnlineError("");
+      startQuizBtn.disabled = true;
+      startQuizBtn.textContent = "⏳ Conectando...";
+
+      destroyPeerSession();
+      isOnlineHost = false;
+
+      peer = new Peer();
+
+      peer.on("open", id => {
+        myPeerId = id;
+        const conn = peer.connect(PEER_PREFIX + pin, { reliable: true });
+        guestConnection = conn;
+
+        const timeout = setTimeout(() => {
+          if (!onlineRoomState) {
+            destroyPeerSession();
+            startQuizBtn.disabled = false;
+            updateSetupUI();
+            showOnlineError("Sala " + pin + " não encontrada. Confira o PIN com o anfitrião.");
+          }
+        }, 8000);
+
+        conn.on("open", () => {
+          conn.send({ type: "JOIN", name: playerName });
+        });
+
+        conn.on("data", data => {
+          if (!data) return;
+          if (data.type === "ERROR") {
+            clearTimeout(timeout);
+            destroyPeerSession();
+            startQuizBtn.disabled = false;
+            updateSetupUI();
+            showOnlineError(data.message || "Não foi possível entrar na sala.");
+            return;
+          }
+          if (data.type === "STATE") {
+            clearTimeout(timeout);
+            const firstJoin = !onlineRoomState;
+            onlineRoomState = data.state;
+            if (firstJoin) {
+              startQuizBtn.disabled = false;
+              setupScreen.classList.add("hidden");
+              onlineRoomScreen.classList.remove("hidden");
+            }
+            renderOnlineRoom();
+          }
+        });
+
+        conn.on("close", () => {
+          if (onlineRoomState) {
+            showToast("O anfitrião encerrou a sala.");
+            leaveOnlineRoom();
+          }
+        });
+      });
+
+      peer.on("error", err => {
+        destroyPeerSession();
+        startQuizBtn.disabled = false;
+        updateSetupUI();
+        showOnlineError("Não foi possível conectar à sala " + pin + " (" + (err.type || "erro") + ").");
+      });
+    }
+
+    function handleOnlineAnswer(playerId, qIdx, rawAnswer, remainingSeconds) {
+      if (!isOnlineHost || !onlineRoomState) return;
+      if (onlineRoomState.phase !== "QUESTION") return;
+      if (qIdx !== onlineRoomState.currentQuestionIndex) return;
+      const player = onlineRoomState.players.find(p => p.id === playerId);
+      if (!player || player.lastAnsweredIndex === qIdx) return;
+
+      const question = onlineRoomState.questions[qIdx];
+      if (!question) return;
+      const cleaned = String(rawAnswer || "").trim().slice(0, 60);
+      if (!cleaned) return;
+
+      const clampedSec = Math.max(0, Math.min(ONLINE_QUESTION_SECONDS, Number(remainingSeconds) || 0));
+      const speedRatio = clampedSec / ONLINE_QUESTION_SECONDS;
+
+      const outcome = evaluateAnswerOutcome(question, cleaned);
+      player.lastAnsweredIndex = qIdx;
+      player.lastAnswer = cleaned;
+      player.lastAnswerCorrect = outcome === "correct";
+      player.lastAnswerOutcome = outcome;
+      if (outcome === "correct") {
+        const pts = 100 + Math.round(50 * speedRatio);
+        player.score += pts;
+        player.lastPointsAwarded = pts;
+        player.correctCount += 1;
+        player.streak = (player.streak || 0) + 1;
+        player.bestStreak = Math.max(player.bestStreak || 0, player.streak);
+      } else if (outcome === "maybe") {
+        const pts = 50 + Math.round(25 * speedRatio);
+        player.score += pts;
+        player.lastPointsAwarded = pts;
+      } else {
+        player.lastPointsAwarded = 0;
+        player.incorrectCount += 1;
+        player.streak = 0;
+      }
+      broadcastRoomState();
+    }
+
+    function submitMyOnlineAnswer(rawAnswer) {
+      if (!onlineRoomState || onlineRoomState.phase !== "QUESTION") return;
+      if (onlineSecondsLeft <= 0) return;
+      const qIdx = onlineRoomState.currentQuestionIndex;
+      const question = onlineRoomState.questions[qIdx];
+      const cleaned = String(rawAnswer || "").trim();
+      if (!cleaned || !question) return;
+
+      const remaining = onlineSecondsLeft;
+      // Do NOT play sound or flash here — feedback is only revealed when the host reveals the answer.
+
+      if (isOnlineHost) {
+        handleOnlineAnswer(myPeerId, qIdx, cleaned, remaining);
+      } else if (guestConnection && guestConnection.open) {
+        guestConnection.send({ type: "ANSWER", questionIndex: qIdx, answer: cleaned, remainingSeconds: remaining });
+      }
+    }
+
+    function renderOnlineRoom() {
+      const state = onlineRoomState;
+      if (!state) return;
+
+      const totalQ = state.questions.length;
+      const qIdx = state.currentQuestionIndex;
+      const qNum = Math.min(qIdx + 1, Math.max(1, totalQ));
+      const answeredCountNow = state.players.filter(p => p.lastAnsweredIndex === qIdx).length;
+      const showProgress = state.phase === "QUESTION" || state.phase === "REVEAL";
+
+      onlineTopPin.textContent = "PIN " + state.roomCode;
+      onlineTopCounter.textContent = showProgress ? `Q${qNum}/${totalQ}` : "";
+      onlineProgressSection.classList.toggle("hidden", !showProgress);
+
+      if (showProgress) {
+        onlineQuestionLabel.textContent = `Questão ${qNum} de ${totalQ}`;
+        onlineAnsweredLabel.textContent = `${answeredCountNow}/${state.players.length} responderam`;
+        onlineProgressFill.style.width = `${Math.round((qNum / Math.max(1, totalQ)) * 100)}%`;
+      }
+
+      const me = state.players.find(p => p.id === myPeerId);
+
+      if (state.phase === "LOBBY") {
+        const diffLabel = state.difficulty === "easy" ? "Fácil" : "Normal";
+        const playersHtml = state.players.map((p, i) => `
+          <div class="online-player-row ${p.id === myPeerId ? "me" : ""}">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="online-rank-badge">${i + 1}</div>
+              <div>
+                <div style="font-weight:700;">${escapeHtml(p.name)}${p.id === myPeerId ? " (Você)" : ""}</div>
+                ${p.id === state.hostId ? `<div style="font-size:0.78rem; color:var(--primary); font-weight:600;">Anfitrião</div>` : ""}
+              </div>
+            </div>
+            <span class="version-badge" style="background:var(--success-bg); color:var(--success-text);">Pronto</span>
+          </div>
+        `).join("");
+
+        const joinUrl = (window.location.protocol === "http:" || window.location.protocol === "https:")
+          ? `${window.location.href.split("?")[0]}?pin=${encodeURIComponent(state.roomCode)}`
+          : state.roomCode;
+
+        onlineRoomBody.innerHTML = `
+          <div class="online-pin-card">
+            <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); letter-spacing:1px;">PIN DA SALA</div>
+            <div class="online-pin-row">
+              <div class="online-pin-value">${escapeHtml(state.roomCode)}</div>
+              <button type="button" id="copyPinBtn" class="theme-circle-btn active" title="Copiar PIN">📋</button>
+              <button type="button" id="copyJoinLinkBtn" class="theme-circle-btn active" title="Copiar Link Direto">🔗</button>
+            </div>
+            <div id="lobbyQrContainer" style="display:inline-flex; justify-content:center; align-items:center; background:#ffffff; padding:10px; border-radius:14px; margin:12px auto 8px;"></div>
+            <div style="font-size:0.86rem; color:var(--text-muted); margin-top:4px;">
+              ${totalQ} questões • Dificuldade ${diffLabel}
+            </div>
+            <div style="font-size:0.84rem; color:var(--text-muted); margin-top:4px;">
+              Escaneie o QR Code ou envie o link/PIN para amigos entrarem no navegador sem login!
+            </div>
+          </div>
+
+          <span class="section-label">Participantes (${state.players.length})</span>
+          ${playersHtml}
+
+          ${isOnlineHost
+            ? `<button type="button" id="onlineStartMatchBtn" class="btn-primary">▶ Iniciar Partida</button>`
+            : `<div class="online-wait-banner">⏳ Aguardando ${escapeHtml(state.hostName)} iniciar a partida…</div>`}
+          <button type="button" id="onlineLobbyLeaveBtn" class="btn-secondary" style="width:100%; margin-top:10px;">Sair da Sala</button>
+        `;
+
+        const qrEl = document.getElementById("lobbyQrContainer");
+        if (qrEl && typeof QRCode !== "undefined") {
+          try {
+            new QRCode(qrEl, { text: joinUrl, width: 152, height: 152, correctLevel: QRCode.CorrectLevel.M });
+          } catch (_) {
+            qrEl.style.display = "none";
+          }
+        } else if (qrEl) {
+          qrEl.style.display = "none";
+        }
+
+        document.getElementById("copyPinBtn").onclick = () => {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(state.roomCode).catch(() => {});
+          }
+          showToast("PIN " + state.roomCode + " copiado!");
+        };
+        document.getElementById("copyJoinLinkBtn").onclick = () => {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(joinUrl).catch(() => {});
+          }
+          showToast("Link da sala copiado!");
+        };
+        document.getElementById("onlineLobbyLeaveBtn").onclick = leaveOnlineRoom;
+        const startBtn = document.getElementById("onlineStartMatchBtn");
+        if (startBtn) {
+          startBtn.onclick = () => {
+            onlineRoomState.phase = "QUESTION";
+            onlineRoomState.currentQuestionIndex = 0;
+            broadcastRoomState();
+          };
+        }
+        return;
+      }
+
+      if (state.phase === "QUESTION") {
+        const item = state.questions[qIdx];
+        const hasAnswered = me && me.lastAnsweredIndex === qIdx;
+        const showCategory = state.difficulty === "easy";
+
+        if (onlineTimerQuestionIdx !== qIdx) {
+          stopOnlineTimer();
+          onlineTimerQuestionIdx = qIdx;
+          onlineSecondsLeft = ONLINE_QUESTION_SECONDS;
+          onlineTimerInterval = setInterval(() => {
+            if (!onlineRoomState || onlineRoomState.phase !== "QUESTION" || onlineRoomState.currentQuestionIndex !== qIdx) {
+              stopOnlineTimer();
+              return;
+            }
+            if (onlineSecondsLeft > 0) {
+              onlineSecondsLeft--;
+              const pill = document.getElementById("onlineTimerPillEl");
+              const bar = document.getElementById("onlineTimerBarFillEl");
+              if (pill) {
+                pill.textContent = `⏱️ ${onlineSecondsLeft}s`;
+                pill.classList.toggle("urgent", onlineSecondsLeft <= 5);
+              }
+              if (bar) {
+                bar.style.width = `${Math.round((onlineSecondsLeft / ONLINE_QUESTION_SECONDS) * 100)}%`;
+                bar.classList.toggle("urgent", onlineSecondsLeft <= 5);
+              }
+              if (onlineSecondsLeft === 0) {
+                stopOnlineTimer();
+                onlineTimerQuestionIdx = qIdx; // prevent restart on re-render
+                renderOnlineRoom();
+              }
+            }
+          }, 1000);
+        }
+
+        const timeUp = onlineSecondsLeft <= 0 && !hasAnswered;
+        const timerPct = Math.round((onlineSecondsLeft / ONLINE_QUESTION_SECONDS) * 100);
+        const myStreak = (me && me.streak) ? me.streak : 0;
+
+        let inputHtml = "";
+        if (hasAnswered) {
+          inputHtml = `
+            <div class="online-wait-banner">
+              ✅ Resposta enviada: <strong>${escapeHtml(me.lastAnswer)}</strong><br/>
+              <span style="font-size:0.84rem; font-weight:400;">Aguardando o anfitrião revelar o gabarito (${answeredCountNow}/${state.players.length})…</span>
+            </div>
+          `;
+        } else if (timeUp) {
+          inputHtml = `
+            <div class="feedback-box wrong" style="margin-top:0; text-align:center;">
+              <span class="feedback-title">⏱️ Tempo esgotado!</span>
+              <span style="font-size:0.86rem;">Aguardando o anfitrião revelar o gabarito (${answeredCountNow}/${state.players.length})…</span>
+            </div>
+          `;
+        } else if (item.type === "choice") {
+          inputHtml = `
+            <div class="options-grid">
+              ${item.options.map(opt => `<button type="button" class="option-btn online-choice-btn" data-opt="${escapeHtml(opt)}">${escapeHtml(opt)}</button>`).join("")}
+            </div>
+          `;
+        } else {
+          inputHtml = `
+            <div class="typing-row">
+              <input type="text" id="onlineTypingInput" placeholder="Digite o verbo modal..." autocomplete="off" />
+              <button type="button" id="onlineTypingSubmitBtn" class="btn-check">Enviar</button>
+            </div>
+          `;
+        }
+
+        onlineRoomBody.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+            <span id="onlineTimerPillEl" class="timer-pill ${onlineSecondsLeft <= 5 ? "urgent" : ""}">⏱️ ${onlineSecondsLeft}s</span>
+            ${(!hasAnswered && myStreak >= 2) ? `<span class="streak-pill">🔥 ${myStreak}x</span>` : `<span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">${hasAnswered ? "🔒 Resposta travada" : "⚡ Responda rápido para bônus!"}</span>`}
+          </div>
+          <div class="online-timer-bar-track">
+            <div id="onlineTimerBarFillEl" class="online-timer-bar-fill ${onlineSecondsLeft <= 5 ? "urgent" : ""}" style="width:${timerPct}%;"></div>
+          </div>
+
+          <article class="question-card">
+            <div class="q-meta-row">
+              <span class="q-number">Questão ${qNum} de ${totalQ}</span>
+              ${showCategory ? `<span class="category-tag">${escapeHtml(item.category)}</span>` : ""}
+            </div>
+            <div class="context-box"><strong>Situação:</strong> ${escapeHtml(item.context)}</div>
+            <div class="question-sentence">${escapeHtml(item.q)}</div>
+            ${inputHtml}
+          </article>
+          ${isOnlineHost ? `<button type="button" id="onlineRevealBtn" class="btn-primary">👁️ Revelar Gabarito</button>` : ""}
+        `;
+
+        onlineRoomBody.querySelectorAll(".online-choice-btn").forEach(btn => {
+          btn.onclick = () => submitMyOnlineAnswer(btn.getAttribute("data-opt"));
+        });
+        const typingSubmit = document.getElementById("onlineTypingSubmitBtn");
+        const typingInput = document.getElementById("onlineTypingInput");
+        if (typingSubmit && typingInput) {
+          const send = () => submitMyOnlineAnswer(typingInput.value);
+          typingSubmit.onclick = send;
+          typingInput.addEventListener("keypress", e => { if (e.key === "Enter") send(); });
+        }
+        const revealBtn = document.getElementById("onlineRevealBtn");
+        if (revealBtn) {
+          revealBtn.onclick = () => {
+            stopOnlineTimer();
+            onlineRoomState.phase = "REVEAL";
+            broadcastRoomState();
+          };
+        }
+        return;
+      }
+
+      if (state.phase === "REVEAL") {
+        stopOnlineTimer();
+        const item = state.questions[qIdx];
+        const answeredThisRound = me && me.lastAnsweredIndex === qIdx;
+        const myOutcome = answeredThisRound ? evaluateAnswerOutcome(item, me.lastAnswer) : "wrong";
+        if (lastOnlineRevealedIdx !== qIdx) {
+          lastOnlineRevealedIdx = qIdx;
+          playAnswerSound(myOutcome);
+          triggerAnswerFlash(myOutcome);
+        }
+        const myPts = answeredThisRound ? (me.lastPointsAwarded || (myOutcome === "correct" ? 100 : myOutcome === "maybe" ? 50 : 0)) : 0;
+        const myStreak = (me && me.streak) ? me.streak : 0;
+        const primaryAnswer = item.answer[0];
+        const info = modalDefinitions[primaryAnswer.toLowerCase()] || {
+          name: primaryAnswer,
+          role: item.category,
+          structure: "Sujeito + modal + verbo principal",
+          contrast: ""
+        };
+        const isLast = qIdx + 1 >= totalQ;
+
+        const boardHtml = state.players.map((p, i) => {
+          const pOutcome = p.lastAnsweredIndex === qIdx ? evaluateAnswerOutcome(item, p.lastAnswer) : null;
+          const pPts = p.lastPointsAwarded || (pOutcome === "correct" ? 100 : pOutcome === "maybe" ? 50 : 0);
+          const streakTag = (p.streak || 0) >= 2 ? ` • 🔥 ${p.streak}x` : "";
+          const pStatus = pOutcome === "correct"
+            ? `✅ Acertou nesta rodada (+${pPts})${streakTag}`
+            : pOutcome === "maybe"
+              ? `🤔 Talvez / Depende do contexto (+${pPts})${streakTag}`
+              : pOutcome === "wrong"
+                ? "❌ Errou nesta rodada"
+                : "⏱️ Não respondeu";
+          return `
+            <div class="online-player-row ${p.id === myPeerId ? "me" : ""}">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div class="online-rank-badge ${i === 0 ? "first" : ""}">${i + 1}º</div>
+                <div>
+                  <div style="font-weight:700;">${escapeHtml(p.name)}${p.id === myPeerId ? " (Você)" : ""}</div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);">${pStatus}</div>
+                </div>
+              </div>
+              <div style="font-weight:800; color:var(--primary); font-size:1.05rem;">${p.score} pts</div>
+            </div>
+          `;
+        }).join("");
+
+        const bannerClass = myOutcome === "correct" ? "correct" : myOutcome === "maybe" ? "maybe" : "wrong";
+        const myStreakNote = myStreak >= 2 ? ` • 🔥 ${myStreak}x` : "";
+        const bannerTitle = myOutcome === "correct"
+          ? `✅ Você acertou! +${myPts} pts${myStreakNote}`
+          : myOutcome === "maybe"
+            ? `🤔 Talvez! Depende do contexto (+${myPts} pts)${myStreakNote}`
+            : answeredThisRound
+              ? "❌ Resposta incorreta (" + escapeHtml(me.lastAnswer) + ")"
+              : "⏱️ Tempo encerrado — sem resposta";
+
+        const maybeExplainHtml = (myOutcome === "maybe" && item.maybeReason)
+          ? `<div style="background:var(--maybe-bg); border:1px solid var(--maybe-border); color:var(--maybe-text); border-radius:10px; padding:10px 12px; margin-bottom:10px; font-size:0.88rem; line-height:1.45;"><strong>Por que "${escapeHtml(me.lastAnswer)}" pode estar certo:</strong> ${escapeHtml(item.maybeReason)}</div>`
+          : "";
+
+        onlineRoomBody.innerHTML = `
+          <div class="feedback-box ${bannerClass}" style="margin-top:0; margin-bottom:14px;">
+            <span class="feedback-title">${bannerTitle}</span>
+            <div style="font-weight:700; margin-top:4px;">Gabarito ideal: ${escapeHtml(item.answer.join(" / "))}</div>
+          </div>
+
+          <div class="question-card" style="margin-bottom:16px;">
+            <div class="question-sentence" style="color:var(--primary); margin-bottom:10px;">
+              ${escapeHtml(item.q.replace("___", primaryAnswer))}
+            </div>
+            ${maybeExplainHtml}
+            <p style="margin-bottom:10px; line-height:1.5;">${escapeHtml(item.reason)}</p>
+            <ul class="feedback-detail-list">
+              <li><strong>${escapeHtml(info.name)}:</strong> ${escapeHtml(info.role)}.</li>
+              <li><strong>Estrutura:</strong> ${escapeHtml(info.structure)}.</li>
+              ${info.contrast ? `<li><strong>Dica:</strong> ${escapeHtml(info.contrast)}</li>` : ""}
+            </ul>
+          </div>
+
+          <span class="section-label">Placar ao Vivo</span>
+          ${boardHtml}
+
+          ${isOnlineHost
+            ? `<button type="button" id="onlineNextBtn" class="btn-primary">${isLast ? "🏆 Ver Pódio Final" : "Próxima Questão →"}</button>`
+            : `<div class="online-wait-banner">⏳ Aguardando ${escapeHtml(state.hostName)} avançar…</div>`}
+        `;
+
+        const nextBtn = document.getElementById("onlineNextBtn");
+        if (nextBtn) {
+          nextBtn.onclick = () => {
+            if (isLast) {
+              onlineRoomState.phase = "FINISHED";
+            } else {
+              onlineRoomState.currentQuestionIndex += 1;
+              onlineRoomState.phase = "QUESTION";
+            }
+            broadcastRoomState();
+          };
+        }
+        return;
+      }
+
+      if (state.phase === "FINISHED") {
+        const top3 = state.players.slice(0, 3);
+        const first = top3[0] || null;
+        const second = top3[1] || null;
+        const third = top3[2] || null;
+
+        const myIdx = state.players.findIndex(p => p.id === myPeerId);
+        const myRank = myIdx >= 0 ? myIdx + 1 : null;
+        const myPlayer = myIdx >= 0 ? state.players[myIdx] : null;
+
+        const renderPodiumSlot = (rank, player, cls) => `
+          <div class="podium-col">
+            <div class="podium-name">${player ? escapeHtml(player.name) + (player.id === myPeerId ? " (Você)" : "") : "—"}</div>
+            <div class="podium-pts">${player ? player.score + " pts" : ""}</div>
+            <div class="podium-bar ${player ? cls : "empty"}" style="${!player ? (cls === "first" ? "height:132px" : cls === "second" ? "height:96px" : "height:76px") : ""}">${rank}º</div>
+          </div>
+        `;
+
+        const boardHtml = state.players.map((p, i) => `
+          <div class="online-player-row ${p.id === myPeerId ? "me" : ""}">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="online-rank-badge ${i === 0 ? "first" : ""}">${i + 1}º</div>
+              <div>
+                <div style="font-weight:700;">${escapeHtml(p.name)}${p.id === myPeerId ? " (Você)" : ""}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">${p.correctCount} acertos • ${p.incorrectCount} erros</div>
+              </div>
+            </div>
+            <div style="font-weight:800; color:var(--primary); font-size:1.05rem;">${p.score} pts</div>
+          </div>
+        `).join("");
+
+        onlineRoomBody.innerHTML = `
+          <div class="online-pin-card">
+            <div style="font-size:2.8rem;">🏆</div>
+            <h1 style="margin-top:4px; font-size:1.45rem;">Pódio dos Vencedores</h1>
+            <div style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">Top 3 melhores pontuações da sala</div>
+            <div class="podium-stage">
+              ${renderPodiumSlot(2, second, "second")}
+              ${renderPodiumSlot(1, first, "first")}
+              ${renderPodiumSlot(3, third, "third")}
+            </div>
+          </div>
+
+          ${myPlayer && myRank ? `
+            <div id="myRankSummaryCard" class="online-player-row me" style="cursor:pointer; background:var(--accent-badge);">
+              <div>
+                <div style="font-weight:800; color:var(--accent-badge-text);">Sua posição: ${myRank}º lugar</div>
+                <div style="font-size:0.82rem; color:var(--text-muted);">${myPlayer.score} pts • ${myPlayer.correctCount} acertos • ${myPlayer.incorrectCount} erros</div>
+              </div>
+              <span style="font-size:1.35rem;">📊</span>
+            </div>
+          ` : ""}
+
+          <button type="button" id="onlineFinishHomeBtn" class="btn-primary" style="margin-bottom:14px;">Voltar ao Início</button>
+          <div style="margin-bottom:84px; padding:12px 14px; border-radius:12px; background:var(--bg-surface); border:1px solid var(--border-color); font-size:0.8rem; color:var(--text-muted); text-align:center; line-height:1.45;">
+            <strong style="color:var(--text-main);">Observação:</strong> Esse quiz foi feito via IA usando de base esse livro:
+            <a href="https://www.cambridge.org/9781108457651" target="_blank" rel="noopener noreferrer" style="color:var(--primary); font-weight:600; text-decoration:underline;">English Grammar in Use (5th Edition — Raymond Murphy, Cambridge)</a>
+          </div>
+          <button type="button" id="rankingFabBtn" class="ranking-fab" title="Ver Ranking Completo">📊</button>
+        `;
+
+        const openRanking = () => {
+          const modal = document.getElementById("rankingModal");
+          const body = document.getElementById("rankingModalBody");
+          const myHighlight = myPlayer && myRank ? `
+            <div class="online-player-row me" style="background:var(--accent-badge); margin-bottom:14px;">
+              <div>
+                <div style="font-weight:800; color:var(--accent-badge-text);">Você ficou em ${myRank}º de ${state.players.length}</div>
+                <div style="font-size:0.82rem; color:var(--text-muted);">${myPlayer.correctCount} acertos • ${myPlayer.incorrectCount} erros</div>
+              </div>
+              <div style="font-weight:900; color:var(--primary); font-size:1.1rem;">${myPlayer.score} pts</div>
+            </div>
+          ` : "";
+          body.innerHTML = myHighlight + boardHtml;
+          modal.classList.remove("hidden");
+        };
+
+        document.getElementById("rankingFabBtn").onclick = openRanking;
+        const myCard = document.getElementById("myRankSummaryCard");
+        if (myCard) myCard.onclick = openRanking;
+        document.getElementById("onlineFinishHomeBtn").onclick = () => {
+          document.getElementById("rankingModal").classList.add("hidden");
+          leaveOnlineRoom();
+        };
+
+        launchConfetti();
+      }
+    }
+
+    document.getElementById("closeRankingModalBtn").addEventListener("click", () => {
+      document.getElementById("rankingModal").classList.add("hidden");
+    });
+    document.getElementById("rankingModal").addEventListener("click", e => {
+      if (e.target.id === "rankingModal") {
+        e.target.classList.add("hidden");
+      }
+    });
+
+    // Auto-fill PIN from direct link (?pin=XXXXXX)
+    (function applyUrlJoinParams() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const pinParam = (params.get("pin") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+        if (pinParam.length >= 4) {
+          gameMode = "group";
+          onlineSubMode = "join";
+          onlinePinInput.value = pinParam;
+          updateSetupUI();
+          showToast("PIN " + pinParam + " preenchido pelo link!");
+        } else {
+          updateSetupUI();
+        }
+      } catch (_) {}
+    })();
+  </script>
+</body>
+</html>

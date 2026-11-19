@@ -1,0 +1,133 @@
+{
+  "entities": {
+    "QuizRoom": {
+      "title": "QuizRoom",
+      "description": "A live Kahoot-style online quiz room hosted by an authenticated user.",
+      "type": "object",
+      "properties": {
+        "hostId": {
+          "type": "string",
+          "description": "UID of the authenticated user who created and controls the room."
+        },
+        "hostName": {
+          "type": "string",
+          "description": "Display name of the room host."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["LOBBY", "QUESTION", "REVEAL", "FINISHED"],
+          "description": "Current phase of the live quiz session."
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": ["EASY", "NORMAL"],
+          "description": "Difficulty preset controlling whether category tags are shown."
+        },
+        "questionIds": {
+          "type": "array",
+          "description": "Ordered list of bundled modal quiz question IDs for this session."
+        },
+        "currentQuestionIndex": {
+          "type": "integer",
+          "description": "Zero-based index of the active question in questionIds."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the room was created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the last room state transition (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "hostId",
+        "hostName",
+        "status",
+        "difficulty",
+        "questionIds",
+        "currentQuestionIndex",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OnlinePlayer": {
+      "title": "OnlinePlayer",
+      "description": "A participant enrolled in a live quiz room with synced score and answer state.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID of the authenticated player (matches document ID)."
+        },
+        "roomCode": {
+          "type": "string",
+          "description": "Room PIN code denormalized for secure list queries."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Player's display name in the room."
+        },
+        "score": {
+          "type": "integer",
+          "description": "Cumulative score earned during this session."
+        },
+        "correctCount": {
+          "type": "integer",
+          "description": "Total number of correct answers."
+        },
+        "incorrectCount": {
+          "type": "integer",
+          "description": "Total number of incorrect answers."
+        },
+        "lastAnsweredIndex": {
+          "type": "integer",
+          "description": "Index of the most recently answered question (-1 if none yet)."
+        },
+        "lastAnswer": {
+          "type": "string",
+          "description": "Most recently submitted answer text."
+        },
+        "lastAnswerCorrect": {
+          "type": "boolean",
+          "description": "Whether the most recently submitted answer was correct."
+        },
+        "joinedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the player joined (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the player's last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "roomCode",
+        "displayName",
+        "score",
+        "correctCount",
+        "incorrectCount",
+        "lastAnsweredIndex",
+        "lastAnswer",
+        "lastAnswerCorrect",
+        "joinedAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/quiz_rooms/{roomCode}": {
+      "schema": { "$ref": "#/entities/QuizRoom" },
+      "description": "Live Kahoot-style online quiz rooms keyed by 6-character PIN."
+    },
+    "/quiz_rooms/{roomCode}/players/{playerId}": {
+      "schema": { "$ref": "#/entities/OnlinePlayer" },
+      "description": "Participants joined to a specific quiz room, keyed by player UID."
+    }
+  }
+}
