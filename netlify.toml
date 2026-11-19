@@ -1,0 +1,11 @@
+[[redirects]]
+  from = "/"
+  to = "/public/ModalsQuiz-v3.0.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/public/modalsquiz-v3.0"
+  to = "/"
+  status = 301
+  force = true

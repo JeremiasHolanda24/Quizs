@@ -1465,15 +1465,15 @@ private fun OnlinePodiumContent(
       }
     }
 
-    // Floating Ranking icon button on the right side
+    // Floating Ranking icon button on the bottom-left side
     FloatingActionButton(
       onClick = { showRankingSheet = true },
       containerColor = MaterialTheme.colorScheme.primary,
       contentColor = Color.White,
       shape = CircleShape,
       modifier = Modifier
-        .align(Alignment.BottomEnd)
-        .padding(bottom = 20.dp, end = 4.dp)
+        .align(Alignment.BottomStart)
+        .padding(bottom = 20.dp, start = 4.dp)
         .testTag("online_podium_ranking_fab")
     ) {
       Icon(
